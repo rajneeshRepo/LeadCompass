@@ -73,21 +73,22 @@ async def create_user(user: CreateUserSchema):
 @router.post('/login')
 def login(user_detail: dict = Body(..., description="requires email and password")):
     try:
-        User = get_collection("user")
+        user_collection = get_user_collection()
         email = user_detail.get('email')
         password = user_detail.get('password')
 
         if not email or not password:
             raise HTTPException(status_code=401, detail='Need Both Email and Password')
 
-        user = User.find_one({"email": email.lower()})
+        user = user_collection.find_one({"email": email.lower()})
         if not user:
             raise HTTPException(status_code=401, detail='Incorrect Email or Password')
 
         if not verify_password(password, user['password']):
             raise HTTPException(status_code=401, detail='Incorrect Password')
 
-        access_token = create_access_token(data={"user_id": user['id']})
+        # print(ObjectId(user['_id']))
+        access_token = create_access_token(data={"user_id":  str(user['_id'])})
         return {"msg": "bearer token generated", "token": access_token}
 
     except HTTPException as http_exception:

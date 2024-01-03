@@ -1,8 +1,8 @@
 import json
 import os
 
-# cur_dir = os.getcwd()
-cur_dir = '/Users/shtlpmac042/Desktop/LeadCompass'
+cur_dir = os.getcwd()
+# cur_dir = '/Users/shtlpmac042/Desktop/LeadCompass'
 company_file_path = os.path.join(cur_dir, "data/mud_lead.json")
 # print(company_file_path)
 

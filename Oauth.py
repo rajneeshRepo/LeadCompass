@@ -1,4 +1,6 @@
 from datetime import timedelta, datetime
+
+from bson import ObjectId
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -17,7 +19,13 @@ SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = os.getenv("JWT_ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-    
+
+def get_user_collection():
+    client = MongoClient("mongodb+srv://user:admin@leadcompass.auduirj.mongodb.net/?retryWrites=true&w=majority")
+    db = client["lead_compass"]
+    user_collection = db["user"]
+    return user_collection
+
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -27,6 +35,7 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, ALGORITHM)
 
     return encoded_jwt
+
 
 def verify_token_access(token: str):
     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -47,13 +56,17 @@ def verify_token_access(token: str):
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
-        User = get_collection("user")
+        user_collection = get_user_collection()
         token = verify_token_access(token)
         user_id = token.get('user_id')
 
         if user_id is not None:
-            user = User.find_one({"id": user_id})
+            user_id = ObjectId(user_id)
+            user = user_collection.find_one({"_id": user_id})
+            # print(user)
+            # print(type(user_id))
             if user:
+                user["_id"] = str(user["_id"])
                 return user
             else:
                 raise HTTPException(status_code=404, detail='Invalid token, No user found')
@@ -65,4 +78,3 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f'error: {str(e)}')
-
