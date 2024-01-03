@@ -1,20 +1,13 @@
 from datetime import timedelta, datetime
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
-from sqlalchemy.orm import defer
-from models.user import User
-from config.db import get_db
+from jose import jwt, JWTError
 from dotenv import load_dotenv, find_dotenv
 import os
-from sqlalchemy.orm import Session
 
-import logging
+from pymongo import MongoClient
 
-logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.ERROR)
-
-
+from config.db import get_collection
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/login')
 
@@ -51,28 +44,25 @@ def verify_token_access(token: str):
 
     return payload
 
-def get_current_user(token: str = Depends(oauth2_scheme),db: Session = Depends(get_db)):
-    
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
+        User = get_collection("user")
         token = verify_token_access(token)
         user_id = token.get('user_id')
 
         if user_id is not None:
-            user = db.query(User).options(defer(User.password)).filter(User.id == user_id).first()
+            user = User.find_one({"id": user_id})
             if user:
                 return user
             else:
-                raise HTTPException(status_code=404,detail=f'Invalid token, No user found')
+                raise HTTPException(status_code=404, detail='Invalid token, No user found')
         else:
             raise HTTPException(status_code=401, detail='Invalid token')
 
     except HTTPException as http_exception:
-        raise http_exception        
+        raise http_exception
 
     except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500,
-                            detail=f'error:{str(e)}')
-    
-    finally:
-        db.close()
+        raise HTTPException(status_code=500, detail=f'error: {str(e)}')
+

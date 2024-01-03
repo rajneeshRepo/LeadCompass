@@ -1,10 +1,11 @@
-from fastapi.responses import JSONResponse
-from passlib.context import CryptContext
+import io
+import json
+import os
+
+import pandas as pd
 from fastapi import Depends, HTTPException, status, File, UploadFile
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-import os,json,io
-import pandas as pd
-
+from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -15,7 +16,6 @@ def hash_password(password: str):
 
 def verify_password(password: str, hashed_password: str):
     return pwd_context.verify(password, hashed_password)
-
 
 
 def authenticate_user(credentials: HTTPBasicCredentials = Depends(HTTPBasic())):
@@ -36,7 +36,7 @@ def authenticate_user(credentials: HTTPBasicCredentials = Depends(HTTPBasic())):
     username = os.getenv("username")
     password = os.getenv("password")
 
-    if credentials.username != username or credentials.password != password :
+    if credentials.username != username or credentials.password != password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
@@ -46,24 +46,33 @@ def authenticate_user(credentials: HTTPBasicCredentials = Depends(HTTPBasic())):
 
 
 async def upload_file(file: UploadFile = File(...)):
-
     file_extension = file.filename.split(".")[-1]
 
     if file_extension.lower() == "json":
         contents = await file.read()
         try:
             json_data = json.loads(contents.decode("utf-8"))
-            return {"msg": "JSON file received", "data": json_data, "status_code":200,"type":"json"}
+            return {"msg": "JSON file received", "data": json_data, "status_code": 200, "type": "json"}
         except json.JSONDecodeError:
-            pass  
+            pass
 
     elif file_extension.lower() in ["csv", "xlsx"]:
         contents = await file.read()
         try:
-            df = pd.read_csv(io.StringIO(contents.decode("utf-8")))
-            # df.fillna(None, inplace=True)
-            return {"msg": "CSV file received", "data": df.to_dict(orient='records'),"status_code":200,"type":"csv"}
+            if file_extension.lower() == "csv":
+                df = pd.read_csv(io.StringIO(contents.decode("utf-8")))
+                df = df.where(pd.notna(df), None)
+                return {"msg": "CSV file received", "data": df.to_dict(orient='records'), "status_code": 200,
+                        "type": "csv"}
+
+            elif file_extension.lower() == "xlsx":
+                df = pd.read_excel(io.BytesIO(contents))
+                df = df.where(pd.notna(df), None)
+                json_data = df.to_json(orient='records', date_format='iso', default_handler=str)
+                return {"msg": "xlxs file received", "data": json.loads(json_data), "status_code": 200, "type": "xlsx"}
+
+
         except pd.errors.ParserError:
-            pass 
+            pass
 
     return {"msg": "Unsupported file format, not csv/xlxs/json"}
