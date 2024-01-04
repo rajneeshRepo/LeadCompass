@@ -1,16 +1,21 @@
 from bson import ObjectId
+from dotenv import load_dotenv, find_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pymongo import MongoClient
 
 from Oauth import get_current_user
 from config.db import get_collection
 from schemas.user import UserUpdateSchema
+import os
 
 router = APIRouter(
     prefix="/user",
     tags=["User"],
     responses={404: {"description": "Not found"}},
 )
+
+_ = load_dotenv(find_dotenv())
+mongo_url = os.getenv("MONGO_URL")
 
 @router.get('/all')
 async def get_all_users(

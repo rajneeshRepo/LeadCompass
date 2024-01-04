@@ -1,6 +1,7 @@
 import json
 
 from bson import ObjectId
+from dotenv import load_dotenv, find_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pymongo import MongoClient
 
@@ -9,6 +10,7 @@ from config.db import get_collection
 from data import load_json
 # from schemas.mud_lead import Mud_Lead
 from schemas.user import UserUpdateSchema
+import os
 
 router = APIRouter(
     prefix="/upload",
@@ -16,9 +18,12 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+_ = load_dotenv(find_dotenv())
+mongo_url = os.getenv("MONGO_URL")
+
 
 def get_sam_collection():
-    client = MongoClient("mongodb+srv://user:admin@leadcompass.auduirj.mongodb.net/?retryWrites=true&w=majority")
+    client = MongoClient("mongo_url")
     db = client["lead_compass"]
     sam_collection = db["complete_sam"]
     return sam_collection

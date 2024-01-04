@@ -1,20 +1,17 @@
 from pymongo import MongoClient
 import os
 import time
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import pandas as pd
 from pymongo import UpdateOne
 import random
 from bson.objectid import ObjectId
 
-load_dotenv()
-
-
-def get_sam_collection():
-    client = MongoClient("mongodb+srv://user:admin@leadcompass.auduirj.mongodb.net/?retryWrites=true&w=majority")
-    db = client["lead_compass"]
-    sam_collection = db["complete_sam"]
-    return sam_collection
+_ = load_dotenv(find_dotenv())
+mongo_url = os.getenv("MONGO_URL")
+client = MongoClient("mongodb://localhost:27017")
+db = client["lead_compass"]
+collection_sam = db["complete_sam"]
 
 
 def get_current_time():
@@ -40,7 +37,7 @@ while True:
     if last_processed_id:
         query["_id"] = {"$gt": ObjectId(last_processed_id)}
 
-    collection_sam = get_sam_collection()
+    # collection_sam = get_sam_collection()
     cursor = collection_sam.find(query).sort("_id").limit(batch_size)
 
     x = collection_sam.count_documents(query)
@@ -81,4 +78,4 @@ et = get_current_time()
 duration = et - st
 
 print(f"Processing time for mortgage table: {duration} seconds")
-
+client.close()

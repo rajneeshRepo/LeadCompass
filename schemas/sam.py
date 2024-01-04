@@ -1,106 +1,101 @@
-from pydantic import BaseModel, EmailStr, constr, Field
+import math
+from pydantic import BaseModel, EmailStr, constr, Field, validator, confloat, field_validator, conlist
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union, Any
 from Enum import StatusEnum
+
+#
+# class PropertyData(BaseModel):
+#     FIPSCode: Any
+#     PropertyZipCode: Any
+#     PropertyZip4: Any
+#     PropertyUnitNumber: Any
+#     PropertyHouseNumber: Any
+#     RecordingDate: Any
+#     RecorderBookNumber: Any
+#     RecorderPageNumber: Any
+#     RecorderDocumentNumber: Any
+#     APN: Any
+#     MultiAPNFlag: Any
+#     LegalBlock: Any
+#     LegalSection: Any
+#     LegalDistrict: Any
+#     LegalLandLot: Any
+#     LegalUnit: Any
+#     LegalPhaseNumber: Any
+#     LegalTractNumber: Any
+#     LenderNameID: Any
+#     DueDate: Any
+#     AdjustableRateRider: Any
+#     FirstChangeDateYearConversionRider: Any
+#     FirstChangeDateMonthDayConversionRider: Any
+#     PrepaymentRider: Any
+#     PrepaymentTermPenaltyRider: Any
+#     BorrowerMailUnitNumber: Any
+#     BorrowerMailZipCode: Any
+#     BorrowerMailZip4: Any
+#     OriginalDateOfContract: Any
+#     LenderMailFullStreetAddress: Any
+#     LenderMailZipCode: Any
+#     LenderMailZip4: Any
+#     LoanTermMonths: Any
+#     LoanTermYears: Any
+#     AssessorLandUse: Any
+#     LoanTransactionType: Any
+#     LoanOrganizationNMLS_ID: Any
+#     MortgageBrokerNMLS_ID: Any
+#     LoanOfficerNMLS_ID: Any
+#     DPID: Any
+#     UpdateTimeStamp: Any
 
 
 class PropertyData(BaseModel):
-    FIPSCode: str
-    PropertyFullStreetAddress: str
-    PropertyCityName: str
-    PropertyState: str
-    PropertyZipCode: str
-    PropertyZip4: str
-    PropertyUnitType: str
-    PropertyUnitNumber: str
-    PropertyHouseNumber: str
-    PropertyStreetDirectionLeft: str
-    PropertyStreetName: str
-    PropertyStreetSuffix: str
-    PropertyStreetDirectionRight: str
-    PropertyAddressCarrierRoute: str
-    RecordType: str
-    RecordingDate: str
-    RecorderBookNumber: str
-    RecorderPageNumber: str
-    RecorderDocumentNumber: str
-    APN: str
-    MultiAPNFlag: str
-    Borrower1FirstNameMiddleName: str
-    Borrower1LastNameOeCorporationName: str
-    Borrower1IDCode: str
-    Borrower2FirstNameMiddleName: str
-    Borrower2LastNameOrCorporationName: str
-    Borrower2IDCode: str
-    BorrowerVestingCode: str
-    LegalLotNumbers: str
-    LegalBlock: str
-    LegalSection: str
-    LegalDistrict: str
-    LegalLandLot: str
-    LegalUnit: str
-    LegalCityTownshipMunicipality: str
-    LegalSubdivisionName: str
-    LegalPhaseNumber: str
-    LegalTractNumber: str
-    LegalBriefDescription: str
-    LegalSectionTownshipRangeMeridian: str
-    LenderNameBeneficiary: str
-    LenderNameID: str
-    LenderType: str
-    LoanAmount: int
-    LoanType: str
-    TypeFinancing: str
-    InterestRate: float
-    DueDate: str
-    AdjustableRateRider: str
-    AdjustableRateIndex: str
-    ChangeIndex: float
-    RateChangeFrequency: str
-    InterestRateNotGreaterThan: float
-    InterestRateNotLessThan: float
-    MaximumInterestRate: float
-    InterestOnlyPeriod: str
-    FixedStepConversionRateRider: str
-    FirstChangeDateYearConversionRider: str
-    FirstChangeDateMonthDayConversionRider: str
-    PrepaymentRider: str
-    PrepaymentTermPenaltyRider: str
-    BuyerMailFullStreetAddress: str
-    BorrowerMailUnitType: str
-    BorrowerMailUnitNumber: str
-    BorrowerMailCity: str
-    BorrowerMailState: str
-    BorrowerMailZipCode: str
-    BorrowerMailZip4: str
-    OriginalDateOfContract: str
-    TitleCompanyName: str
-    LenderDBAName: str
-    LenderMailFullStreetAddress: str
-    LenderMailUnitType: str
-    LenderMailUnit: str
-    LenderMailCity: Optional[str] = ""
-    LenderMailState: str
-    LenderMailZipCode: str
-    LenderMailZip4: str
-    LoanTermMonths: str
-    LoanTermYears: str
-    LoanNumber: str
-    PID: int
-    AssessorLandUse: str
-    ResidentialIndicator: bool
-    ConstructionLoan: bool
-    CashPurchase: bool
-    StandAloneRefi: bool
-    EquityCreditLine: bool
-    PropertyUseCode: str
-    LoanTransactionType: str
-    MainRecordIDCode: str
-    LoanOrganizationNMLS_ID: str
-    LoanOrganizationName: str
-    MortgageBrokerNMLS_ID: str
-    MortgageBroker: str
-    LoanOfficerNMLS_ID: str
-    LoanOfficerName: str
-    DPID: str
-    UpdateTimeStamp: str
+    FIPSCode: Union[str, int]
+    PropertyZipCode: Union[str, int]
+    PropertyZip4: Union[str, int]
+    PropertyUnitNumber: Union[str, int]
+    PropertyHouseNumber: Union[str, int]
+    RecordingDate: Union[str, int]
+    RecorderBookNumber: Union[str, int]
+    RecorderPageNumber: Union[str, int]
+    RecorderDocumentNumber: Union[str, int]
+    APN: Union[str, int]
+    MultiAPNFlag: Union[float, str, int]
+    LegalBlock: Union[str, int]
+    LegalSection: Union[str, int]
+    LegalDistrict: Union[str, int]
+    LegalLandLot: Union[str, int]
+    LegalUnit: Union[str, int]
+    LegalPhaseNumber: Union[str, int]
+    LegalTractNumber: Union[str, int]
+    LenderNameID: Union[str, int]
+    DueDate: Union[str, int]
+    AdjustableRateRider: Union[str, None]
+    FirstChangeDateYearConversionRider: Union[str, int]
+    FirstChangeDateMonthDayConversionRider: Union[str, int]
+    PrepaymentRider: Union[str, None]
+    PrepaymentTermPenaltyRider: Union[str, int]
+    BorrowerMailUnitNumber: Union[str, int]
+    BorrowerMailZipCode: Union[str, int]
+    BorrowerMailZip4: Union[str, int]
+    OriginalDateOfContract: Union[str, int]
+    LenderMailFullStreetAddress: Union[str, None]
+    LenderMailZipCode: Union[str, int]
+    LenderMailZip4: Union[str, int]
+    LoanTermMonths: Union[str, int]
+    LoanTermYears: Union[str, int, float]
+    AssessorLandUse: Union[str, int]
+    LoanTransactionType: Union[str, int]
+    LoanOrganizationNMLS_ID: Union[str, int]
+    MortgageBrokerNMLS_ID: Union[str, int]
+    LoanOfficerNMLS_ID: Union[str, int]
+    DPID: Union[str, int]
+    UpdateTimeStamp: Union[str, int]
+
+# @field_validator('MultiAPNFlag')
+# def check_nan(cls, value):
+#     if isinstance(value, (float, int)):
+#         return float(value)
+#     elif isinstance(value, str) and value.lower() == 'nan':
+#         return 0
+#     raise ValueError('Invalid value for MultiAPNFlag')

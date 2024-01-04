@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from bson import ObjectId
+from dotenv import load_dotenv, find_dotenv
 from fastapi import APIRouter, HTTPException, Depends, Body
 from pymongo import MongoClient
 from pymongo.collection import Collection
@@ -9,6 +10,7 @@ from Oauth import get_current_user, create_access_token
 from config.db import get_collection
 from schemas import CreateUserSchema
 from utils import hash_password, verify_password
+import os
 
 router = APIRouter(
     prefix="/auth",
@@ -16,9 +18,11 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+_ = load_dotenv(find_dotenv())
+mongo_url = os.getenv("MONGO_URL")
 
 def get_user_collection():
-    client = MongoClient("mongodb+srv://user:admin@leadcompass.auduirj.mongodb.net/?retryWrites=true&w=majority")
+    client = MongoClient("mongo_url")
     db = client["lead_compass"]
     user_collection = db["user"]
     return user_collection

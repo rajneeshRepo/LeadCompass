@@ -62,7 +62,9 @@ async def upload_file(file: UploadFile = File(...)):
             if file_extension.lower() == "csv":
                 df = pd.read_csv(io.StringIO(contents.decode("utf-8")))
                 df = df.where(pd.notna(df), None)
-                return {"msg": "CSV file received", "data": df.to_dict(orient='records'), "status_code": 200,
+                headers = df.columns.tolist()
+                return {"msg": "CSV file received", "data": df.to_dict(orient='records'), "headers": headers,
+                        "status_code": 200,
                         "type": "csv"}
 
             elif file_extension.lower() == "xlsx":

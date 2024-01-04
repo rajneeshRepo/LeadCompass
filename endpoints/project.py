@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from bson import ObjectId
+from dotenv import load_dotenv, find_dotenv
 from fastapi import APIRouter, HTTPException, Depends, Body
 from pymongo import MongoClient
 from pymongo.collection import Collection
@@ -10,6 +11,7 @@ from config.db import get_collection
 from schemas import CreateUserSchema
 from schemas.project import CreateProject
 from utils import hash_password, verify_password
+import os
 
 router = APIRouter(
     prefix="/project",
@@ -17,9 +19,12 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+_ = load_dotenv(find_dotenv())
+mongo_url = os.getenv("MONGO_URL")
+
 
 def get_project_collection():
-    client = MongoClient("mongodb+srv://user:admin@leadcompass.auduirj.mongodb.net/?retryWrites=true&w=majority")
+    client = MongoClient("mongo_url")
     db = client["lead_compass"]
     project_collection = db["project"]
     return project_collection
