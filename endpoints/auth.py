@@ -20,9 +20,10 @@ router = APIRouter(
 
 _ = load_dotenv(find_dotenv())
 mongo_url = os.getenv("MONGO_URL")
+print(mongo_url)
 
 def get_user_collection():
-    client = MongoClient("mongo_url")
+    client = MongoClient("mongodb://localhost:27017")
     db = client["lead_compass"]
     user_collection = db["user"]
     return user_collection

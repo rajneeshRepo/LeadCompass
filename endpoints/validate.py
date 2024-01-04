@@ -78,7 +78,10 @@ def validate_fields(companies: List[dict], companies_headers: List):
 
 
 @router.post('/validate')
-async def validate_file(api_key: str = Body(None), source: str = Body(None), file: UploadFile = File(None)):
+async def validate_file(paylaod: dict = Body(None), file: UploadFile = File(None)):
+    api_key = paylaod.get('api_key')
+    source = paylaod.get('source')
+
     try:
         if file:
             response = await upload_file(file)

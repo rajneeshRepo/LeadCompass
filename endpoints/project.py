@@ -24,7 +24,7 @@ mongo_url = os.getenv("MONGO_URL")
 
 
 def get_project_collection():
-    client = MongoClient("mongo_url")
+    client = MongoClient("mongodb://localhost:27017")
     db = client["lead_compass"]
     project_collection = db["project"]
     return project_collection

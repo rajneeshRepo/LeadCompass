@@ -23,7 +23,7 @@ mongo_url = os.getenv("MONGO_URL")
 
 
 def get_sam_collection():
-    client = MongoClient("mongo_url")
+    client = MongoClient("mongodb://localhost:27017")
     db = client["lead_compass"]
     sam_collection = db["complete_sam"]
     return sam_collection

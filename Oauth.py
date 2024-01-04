@@ -21,7 +21,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 def get_user_collection():
-    client = MongoClient("mongodb+srv://user:admin@leadcompass.auduirj.mongodb.net/?retryWrites=true&w=majority")
+    client = MongoClient("mongodb://localhost:27017")
     db = client["lead_compass"]
     user_collection = db["user"]
     return user_collection
