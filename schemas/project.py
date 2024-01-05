@@ -4,13 +4,12 @@ from typing import Optional
 from Enum import StatusEnum
 
 
-class PyObjectId:
-    pass
+# class PyObjectId:
+#     pass
 
 
 class ProjectSchema(BaseModel):
-    project_id: int
-    project_name: str
+    name: str
     user_name: str
     created_at: datetime
 

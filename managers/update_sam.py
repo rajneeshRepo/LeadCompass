@@ -142,7 +142,7 @@ while True:
 et = get_current_time()
 duration = et - st
 
-print(f"Processing time for deed table: {duration} seconds")
+print(f"Processing time for update time_tag, residential_tag and company_tag table: {duration} seconds")
 
 # Close the MongoDB connection
 client.close()

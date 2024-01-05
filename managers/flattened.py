@@ -10,7 +10,7 @@ load_dotenv()
 
 DB_NAME = "lead_compass"
 
-SOURCE_MORTGAGE = "complete_sam"
+SOURCE_MORTGAGE = "sam_filter"
 
 TARGET_INDIVIDUAL = "individual_borrowers"
 TARGET_COMPANY = "company_borrowers"
@@ -110,6 +110,6 @@ result2 = collection_individual.bulk_write(to_insert_individual)
 
 et = get_current_time()
 
-print(f"Done with mortgage collection {et - st} seconds")
+print(f"Done with flattening mortgage collection {et - st} seconds")
 
 client.close()

@@ -68,6 +68,6 @@ while skip < total_documents:
 
 et = get_current_time()
 
-print(f"Print total time taken in filtering mortgage {et-st} seconds")
+print(f"total time taken in filtering mortgage {et-st} seconds")
 
 client.close()

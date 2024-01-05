@@ -8,7 +8,7 @@ from pymongo.collection import Collection
 
 from Oauth import get_current_user, create_access_token
 from config.db import get_collection
-from schemas import CreateUserSchema
+from schemas import CreateUserSchema, UserBaseSchema
 from utils import hash_password, verify_password
 import os
 
@@ -104,9 +104,10 @@ def login(user_detail: dict = Body(..., description="requires email and password
 
 
 @router.get('/me')
-async def get_current_user(current_user: str = Depends(get_current_user)):
+async def get_current_user(current_user: UserBaseSchema = Depends(get_current_user)):
     try:
         if current_user:
+            current_user["_id"] = str(current_user["_id"])
             return {"user": current_user}
 
     except Exception as e:

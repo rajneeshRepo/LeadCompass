@@ -60,7 +60,7 @@ class PropertyData(BaseModel):
     RecorderPageNumber: Union[str, int]
     RecorderDocumentNumber: Union[str, int]
     APN: Union[str, int]
-    MultiAPNFlag: Union[float, str, int]
+    MultiAPNFlag: Union[float, str, int, None]
     LegalBlock: Union[str, int]
     LegalSection: Union[str, int]
     LegalDistrict: Union[str, int]

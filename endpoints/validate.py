@@ -62,7 +62,6 @@ def validate_fields(companies: List[dict], companies_headers: List):
             PropertyData(**company)
 
         except ValidationError as e:
-            # Accumulate errors
             error_detail = {
                 # "company_data": company['_id'],
                 "errors": e.errors(),
