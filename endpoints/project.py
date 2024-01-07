@@ -78,9 +78,10 @@ async def create_project(background_tasks: BackgroundTasks, file: UploadFile = F
     try:
         collection_sam = get_sam_collection()
         result_sam = []
+        companies = []
         if file:
             response = await upload_file(file)
-            companies = []
+
             if response.get("status_code") == 200:
                 if response.get("type") == "json":
                     companies = response.get('data', dict())
@@ -103,20 +104,18 @@ async def create_project(background_tasks: BackgroundTasks, file: UploadFile = F
             "project_id": collection_project.count_documents({}) + 1,
             "project_name": f"{file.filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "user_name": "admin@gmail.com",
-            "total_mortgage_transaction": collection_sam.count_documents({}),
+            "total_mortgage_transaction": len(companies),
             "last_10_year_transactions_mortgage": collection_sam.count_documents({"time_tag": "N"}),
             "residential_properties_transactions_mortgage": collection_sam.count_documents({"residential_tag": 1}),
             "created_at": datetime.now(),
             "status": "complete",
             "source": "csv"
         }
-        # print(new_project)
+
         result_project = collection_project.insert_one(new_project)
         collection_sam.update_many({"_id": {"$in": inserted_ids}}, {"$set": {"project_id": new_project.get('project_id')}})
         # collection_sam.update_many({}, {"$set": {"project_id": new_project.get('pid')}})
         new_project["_id"] = str(new_project["_id"])
-
-        # new_project_response = {key: value for key, value in new_project.items() if key != '_id'}
 
         background_tasks.add_task(run_scripts)
         return {"msg": "project added successfully",
@@ -129,7 +128,7 @@ async def create_project(background_tasks: BackgroundTasks, file: UploadFile = F
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get('/project/all')
+@router.post('/project/all')
 async def get_projects(
         payload: dict = Body(None, description="source"),
         page: int = Query(1, ge=1),
@@ -139,18 +138,17 @@ async def get_projects(
 
         filter_query = {}
         source = payload.get('sourceType')
-        created_asc = payload.get('sortBy')
-        created_desc = payload.get('last entry')
+        sort_order = payload.get('sortBy')
 
         if source:
             filter_query["source"] = source
 
-        if created_asc:
-            projects = collection_project.find(filter_query, {'_id': 0}).sort("created_at", 1).limit(page_size).skip(
-                (page - 1) * page_size)
-        else:
-            projects = collection_project.find(filter_query, {'_id': 0}).sort("created_at", -1).limit(page_size).skip(
-                (page - 1) * page_size)
+        sort_direction = 1
+        if sort_order and sort_order.lower() == "last entry":
+            sort_direction = -1
+
+        projects = collection_project.find(filter_query, {'_id': 0}).sort("created_at", sort_direction).limit(page_size).skip(
+            (page - 1) * page_size)
 
         project_list = [project for project in projects]
         return {"msg": "projects retrieved successfully", "projects": project_list}
