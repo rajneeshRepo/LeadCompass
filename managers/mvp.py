@@ -25,15 +25,20 @@ st = get_current_time()
 
 collection_individual = db[SOURCE_I]
 collection_company = db[SOURCE_C]
+collection_project = db["project"]
 
 # New collection
 new_collection = db[TARGET]
-
+latest_project = collection_project.find_one({}, sort=[("_id", -1)])
+latest_project_id = latest_project.get("project_id", 0)
 # Define your filter criteria
-filter_criteria_i = {}
-filter_criteria_c = {"RcCalIsTrust&NetLoanLessThanMillion": "N"}
-
-
+filter_criteria_i = {"project_id": latest_project_id}
+# filter_criteria_i = {}
+filter_criteria_c = {"$and": [
+    {"RcCalIsTrust&NetLoanLessThanMillion": "N"},
+    {"project_id": latest_project_id}
+]
+}
 
 # Define the fields you want to select and rename
 fields_to_select_i = {

@@ -64,7 +64,7 @@ async def run_scripts():
 
     script_filenames = ["update_borrower_name_sam.py", "update_sam.py", "filter_sam.py",
                         "flattened.py", "listing_more_than_one_borrower.py", "tags_for_company_borrowers.py",
-                        "mvp.py"]
+                        "mvp.py", "mvp_groupby.py"]
 
     for script_filename in script_filenames:
         script_path = f"{script_directory}/{script_filename}"
@@ -96,23 +96,24 @@ async def create_project(background_tasks: BackgroundTasks, file: UploadFile = F
 
             result_sam = collection_sam.insert_many(companies)
 
+        inserted_ids = result_sam.inserted_ids
         collection_project = get_project_collection()
 
         new_project = {
-            "pid": collection_project.count_documents({}) + 1,
-            "project_name": f"project_{datetime.now().strftime('%Y%m%d')}",
-            "user_name": "uk",
+            "project_id": collection_project.count_documents({}) + 1,
+            "project_name": f"{file.filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            "user_name": "admin@gmail.com",
             "total_mortgage_transaction": collection_sam.count_documents({}),
             "last_10_year_transactions_mortgage": collection_sam.count_documents({"time_tag": "N"}),
             "residential_properties_transactions_mortgage": collection_sam.count_documents({"residential_tag": 1}),
             "created_at": datetime.now(),
             "status": "complete",
-            "source": "blackknight"
+            "source": "csv"
         }
         # print(new_project)
         result_project = collection_project.insert_one(new_project)
-
-        collection_sam.update_many({}, {"$set": {"project_id": new_project.get('pid')}})
+        collection_sam.update_many({"_id": {"$in": inserted_ids}}, {"$set": {"project_id": new_project.get('project_id')}})
+        # collection_sam.update_many({}, {"$set": {"project_id": new_project.get('pid')}})
         new_project["_id"] = str(new_project["_id"])
 
         # new_project_response = {key: value for key, value in new_project.items() if key != '_id'}
@@ -128,7 +129,7 @@ async def create_project(background_tasks: BackgroundTasks, file: UploadFile = F
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post('/project')
+@router.get('/project/all')
 async def get_projects(
         payload: dict = Body(None, description="source"),
         page: int = Query(1, ge=1),
@@ -137,9 +138,9 @@ async def get_projects(
         collection_project = get_project_collection()
 
         filter_query = {}
-        source = payload.get('source')
-        created_asc = payload.get('first_entry')
-        created_desc = payload.get('last_entry')
+        source = payload.get('sourceType')
+        created_asc = payload.get('sortBy')
+        created_desc = payload.get('last entry')
 
         if source:
             filter_query["source"] = source

@@ -26,6 +26,9 @@ print("Started tagging company_borrowers")
 
 st = get_current_time()
 collection_source = db[SOURCE]
+collection_source.create_index([("Borrower", 1)])
+
+
 pipeline = [
     {
         "$match": {

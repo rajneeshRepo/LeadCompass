@@ -21,7 +21,7 @@ client = MongoClient("mongodb://localhost:27017")
 
 # Access a specific database (replace 'your_database' with your actual database name)
 db = client[DB_NAME]
-
+collection_project = db["project"]
 
 def get_current_time():
     return time.time()
@@ -36,10 +36,14 @@ collection_company = db[TARGET_COMPANY]
 
 st = get_current_time()
 
+latest_project = collection_project.find_one({}, sort=[("_id", -1)])
+latest_project_id = latest_project.get("project_id", 0)
+
 filter_mortgage = {
     "$and": [
         {"residential_tag": 1},
-        {"time_tag": "N"}
+        {"time_tag": "N"},
+        {"project_id": latest_project_id}
     ]
 }
 

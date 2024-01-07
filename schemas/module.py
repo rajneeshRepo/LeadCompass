@@ -6,10 +6,6 @@ from typing import Optional
 from Enum import StatusEnum
 
 
-# class PyObjectId:
-#     pass
-
-
 class AmountOptions(str, Enum):
     ALL_AMOUNTS = "All Amounts"
     LESS_THAN_100K = "Less than $100,000"
@@ -31,6 +27,6 @@ class DurationOptions(str, Enum):
 
 
 class TransactionFilters(BaseModel):
-    amount: AmountOptions
-    transaction_count: TransactionCountOptions
-    duration: DurationOptions
+    amount: Optional[AmountOptions]
+    transaction_count: Optional[TransactionCountOptions]
+    duration: Optional[DurationOptions]

@@ -11,6 +11,7 @@ client = MongoClient("mongodb://localhost:27017")
 db = client["lead_compass"]
 collection_sam = db["complete_sam"]
 collection_sam_filter = db["sam_filter"]
+collection_project = db["project"]
 
 
 def get_current_time():
@@ -18,6 +19,8 @@ def get_current_time():
 
 
 st = get_current_time()
+latest_project = collection_project.find_one({}, sort=[("_id", -1)])
+latest_project_id = latest_project.get("project_id", 0)
 
 filter = {
     "$and": [
@@ -35,7 +38,8 @@ filter = {
                             "TWN"]}},
             ]
         },
-        {"time_tag": "N"}
+        {"time_tag": "N"},
+        {"project_id": latest_project_id}
     ]
 }
 

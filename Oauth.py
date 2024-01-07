@@ -63,8 +63,6 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         if user_id is not None:
             user_id = ObjectId(user_id)
             user = user_collection.find_one({"_id": user_id})
-            # print(user)
-            # print(type(user_id))
             if user:
                 user["_id"] = str(user["_id"])
                 return user

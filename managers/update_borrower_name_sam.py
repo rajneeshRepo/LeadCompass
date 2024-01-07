@@ -12,7 +12,7 @@ mongo_url = os.getenv("MONGO_URL")
 client = MongoClient("mongodb://localhost:27017")
 db = client["lead_compass"]
 collection_sam = db["complete_sam"]
-
+collection_project = db["project"]
 
 def get_current_time():
     return time.time()
@@ -34,6 +34,13 @@ last_processed_id = None
 while True:
     query = {}  # You can add additional filters if needed
     print(last_processed_id)
+    latest_project = collection_project.find_one({}, sort=[("_id", -1)])
+    print(latest_project)
+    latest_project_id = latest_project.get("project_id", 0)
+
+    query["project_id"] = latest_project_id
+    print(latest_project_id)
+    print(query)
     if last_processed_id:
         query["_id"] = {"$gt": ObjectId(last_processed_id)}
 

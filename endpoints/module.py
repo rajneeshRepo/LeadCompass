@@ -4,7 +4,7 @@ from bson import ObjectId
 from dotenv import load_dotenv, find_dotenv
 from fastapi import APIRouter, HTTPException, Depends, Body, Query, BackgroundTasks, UploadFile, File
 import subprocess
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
 from pymongo.collection import Collection
 import asyncio
 
@@ -26,11 +26,18 @@ _ = load_dotenv(find_dotenv())
 mongo_url = os.getenv("MONGO_URL")
 
 
-def get_sam_collection():
+def get_module_collection():
     client = MongoClient("mongodb://localhost:27017")
     db = client["lead_compass"]
-    sam_collection = db["complete_sam"]
-    return sam_collection
+    module_collection = db["module"]
+    return module_collection
+
+
+def get_group_mvp_collection():
+    client = MongoClient("mongodb://localhost:27017")
+    db = client["lead_compass"]
+    mvp_group_collection = db["group_mvp"]
+    return mvp_group_collection
 
 
 def get_project_collection():
@@ -40,48 +47,70 @@ def get_project_collection():
     return project_collection
 
 
-
 @router.post('/module')
-async def create_module(filters: TransactionFilters):
+async def create_module(filters: TransactionFilters, project_id: str = Body(...)):
     try:
-
-        filter = TransactionFilters(**filters)
+        print(project_id)
 
         query_filter = {}
+        if filters.amount:
+            if filters.amount.value == 'All Amounts':
+                query_filter["RcCalTotalLoanAmount"] = {}
 
-        if filter.amount:
-            query_filter["amount"] = filters.amount
+            if filters.amount.value == 'Less than $100,000':
+                query_filter["RcCalTotalLoanAmount"] = {"$lt": 100000}
 
-        if filter.transaction_count:
-            query_filter["transaction_count"] = filters.transaction_count
+            if filters.amount.value == 'Greater than $100,000':
+                query_filter["RcCalTotalLoanAmount"] = {"$gt": 100000}
 
-        if filter.duration:
-            query_filter["duration"] = filters.duration
+        if filters.transaction_count:
+            if filters.transaction_count.value == 'All Transactions':
+                query_filter["RcCalNumberOfLoans"] = {}
 
+            if filters.transaction_count.value == 'Greater than 1':
+                query_filter["RcCalNumberOfLoans"] = {"$gt": 1}
 
+            if filters.transaction_count.value == 'Less than 10':
+                query_filter["RcCalNumberOfLoans"] = {"$lt": 10}
 
+            if filters.transaction_count.value == 'Greater than 10':
+                query_filter["RcCalNumberOfLoans"] = {"$gt": 10}
 
-        # new_module = {
-        #     "pid": collection_project.count_documents({}) + 1,
-        #     "project_name": f"project_{datetime.now().strftime('%Y%m%d')}",
-        #     "user_name": "uk",
-        #     "total_mortgage_transaction": collection_sam.count_documents({}),
-        #     "last_10_year_transactions_mortgage": collection_sam.count_documents({"time_tag": "N"}),
-        #     "residential_properties_transactions_mortgage": collection_sam.count_documents({"residential_tag": 1}),
-        #     "created_at": datetime.now(),
-        #     "status": "complete",
-        #     "source": "blackknight"
-        # }
-        # # print(new_project)
-        # result_project = collection_project.insert_one(new_project)
-        #
-        # collection_sam.update_many({}, {"$set": {"project_id": new_project.get('pid')}})
-        #
-        # new_project_response = {key: value for key, value in new_project.items() if key != '_id'}
-        #
-        # background_tasks.add_task(run_scripts)
-        # return {"msg": "project added successfully", "project_id": str(result_project.inserted_id),
-        #         "new_project": new_project_response}
+        if filters.duration:
+            if filters.duration.value == 'All Durations':
+                query_filter["RcCalLatestTransactionDate"] = {}
+
+            if filters.transaction_count.value == 'Less than 6 months':
+                query_filter["RcCalLatestTransactionDate"] = {"$gt": 1}
+
+            if filters.transaction_count.value == 'Less than 1 year':
+                query_filter["RcCalLatestTransactionDate"] = {"$lt": 10}
+
+            if filters.transaction_count.value == 'Greater than 1 year':
+                query_filter["RcCalLatestTransactionDate"] = {"$gt": 10}
+
+        collection_mvp_grp = get_group_mvp_collection()
+        filtered_documents = list(collection_mvp_grp.find(query_filter, {'_id': 0}))
+
+        new_module = {
+            "project_id": str(project_id),
+            "user_mail": "admin@gmail.com",
+            "created_at": datetime.now(),
+            "filters": query_filter,
+        }
+
+        collection_module = get_module_collection()
+        result_project = collection_module.insert_one(new_module)
+
+        collection_project = get_project_collection()
+
+        update_result = collection_mvp_grp.update_many(
+            {"RcCalTransactions.ProjectId": int(project_id)},
+            {"$set": {"RcCalTransactions.$.module_id": str(new_module["_id"])}}
+        )
+
+        new_module["_id"] = str(new_module["_id"])
+        return {"msg": "module added successfully", "new_module": new_module}
 
     except HTTPException as http_exception:
         raise http_exception
@@ -90,31 +119,21 @@ async def create_module(filters: TransactionFilters):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post('/project')
-async def get_projects(
+@router.get('/module/all')
+async def get_modules(
         payload: dict = Body(None, description="source"),
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1)):
     try:
-        collection_project = get_project_collection()
+        collection_module = get_module_collection()
 
         filter_query = {}
-        source = payload.get('source')
-        created_asc = payload.get('first_entry')
-        created_desc = payload.get('last_entry')
 
-        if source:
-            filter_query["source"] = source
+        modules = collection_module.find(filter_query, {'_id': 0}).sort("created_at", 1).limit(page_size).skip(
+            (page - 1) * page_size)
 
-        if created_asc:
-            projects = collection_project.find(filter_query, {'_id': 0}).sort("created_at", 1).limit(page_size).skip(
-                (page - 1) * page_size)
-        else:
-            projects = collection_project.find(filter_query, {'_id': 0}).sort("created_at", -1).limit(page_size).skip(
-                (page - 1) * page_size)
-
-        project_list = [project for project in projects]
-        return {"msg": "projects retrieved successfully", "projects": project_list}
+        module_list = [module for module in modules]
+        return {"msg": "modules retrieved successfully", "modules": module_list}
 
     except HTTPException as http_exception:
         raise http_exception
