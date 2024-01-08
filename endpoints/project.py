@@ -10,6 +10,7 @@ import asyncio
 
 from Oauth import get_current_user, create_access_token
 from config.db import get_collection
+from data import load_json
 from schemas import CreateUserSchema, UserBaseSchema
 from schemas.project import CreateProject
 from utils import hash_password, verify_password, upload_file
@@ -74,7 +75,7 @@ def run_scripts():
 
 
 @router.post('/project')
-async def create_project(background_tasks: BackgroundTasks, file: UploadFile = File(...),
+async def create_project(background_tasks: BackgroundTasks, file: UploadFile = File(None),
                          user: UserBaseSchema = Depends(get_current_user)):
     try:
 
@@ -99,19 +100,29 @@ async def create_project(background_tasks: BackgroundTasks, file: UploadFile = F
 
             result_sam = collection_sam.insert_many(companies)
 
+        else:
+            companies = load_json.company_data
+            result_sam = collection_sam.insert_many(companies)
+
         inserted_ids = result_sam.inserted_ids
         collection_project = get_project_collection()
 
         new_project = {
             "_id": ObjectId(),
             "project_id": collection_project.count_documents({}) + 1,
-            "project_name": f"{file.filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "user_mail": user.get('email'),
             "total_mortgage_transaction": len(companies),
             "created_at": datetime.now(),
-            "status": "complete",
-            "source": file.filename.split(".")[-1].lower()
+            "status": "complete"
         }
+
+        source = "blackknight"
+        if file:
+            new_project["source"] = file.filename.split(".")[-1].lower()
+            new_project["project_name"] = f"{file.filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        else:
+            new_project["source"] = source
+            new_project["project_name"] = f"blackknight_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
         result_project = collection_project.insert_one(new_project)
 

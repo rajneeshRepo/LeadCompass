@@ -87,18 +87,14 @@ print("Done initial group BY")
 
 # Aggregate transactions into a list for each borrower
 grouped_df['RcCalTransactions'] = \
-df.groupby('RcCalBorrower').apply(lambda x: x.drop('RcCalBorrower', axis=1).to_dict(orient='records')).reset_index(
-    name='RcCalTransactions')['RcCalTransactions']
+    df.groupby('RcCalBorrower').apply(lambda x: x.drop('RcCalBorrower', axis=1).to_dict(orient='records')).reset_index(
+        name='RcCalTransactions')['RcCalTransactions']
 
 print("Done 2nd group BY")
 
 # Dump the resulting DataFrame into a new MongoDB collection
 
 output_data = grouped_df.to_dict(orient='records')
-
-
-
-
 
 client = MongoClient("mongodb://localhost:27017")
 
