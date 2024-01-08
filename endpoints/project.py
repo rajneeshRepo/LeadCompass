@@ -56,7 +56,7 @@ def get_project_collection():
 #     tasks = [run_script(f"{script_directory}/{script_filename}") for script_filename in script_filenames]
 #     await asyncio.gather(*tasks)
 
-async def run_scripts():
+def run_scripts():
     collection_project = get_project_collection()
 
     cur_dir = os.getcwd()
@@ -74,8 +74,10 @@ async def run_scripts():
 
 
 @router.post('/project')
-async def create_project(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def create_project(background_tasks: BackgroundTasks, file: UploadFile = File(...),
+                         user: UserBaseSchema = Depends(get_current_user)):
     try:
+
         collection_sam = get_sam_collection()
         result_sam = []
         companies = []
@@ -101,24 +103,45 @@ async def create_project(background_tasks: BackgroundTasks, file: UploadFile = F
         collection_project = get_project_collection()
 
         new_project = {
+            "_id": ObjectId(),
             "project_id": collection_project.count_documents({}) + 1,
             "project_name": f"{file.filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-            "user_name": "admin@gmail.com",
+            "user_mail": user.get('email'),
             "total_mortgage_transaction": len(companies),
-            "last_10_year_transactions_mortgage": collection_sam.count_documents({"time_tag": "N"}),
-            "residential_properties_transactions_mortgage": collection_sam.count_documents({"residential_tag": 1}),
             "created_at": datetime.now(),
             "status": "complete",
-            "source": "csv"
+            "source": file.filename.split(".")[-1].lower()
         }
 
         result_project = collection_project.insert_one(new_project)
+
         collection_sam.update_many({"_id": {"$in": inserted_ids}},
                                    {"$set": {"project_id": new_project.get('project_id')}})
-        # collection_sam.update_many({}, {"$set": {"project_id": new_project.get('pid')}})
-        new_project["_id"] = str(new_project["_id"])
 
-        background_tasks.add_task(run_scripts)
+        run_scripts()
+        project_id = new_project["project_id"]
+
+        last_10_year_transactions_mortgage = collection_sam.count_documents({
+            "residential_tag": 1,
+            "project_id": project_id
+        })
+
+        residential_properties_transactions_mortgage = collection_sam.count_documents({
+            "time_tag": "N",
+            "project_id": project_id
+        })
+        collection_project.update_one(
+            {"_id": ObjectId(new_project["_id"])},
+            {
+                "$set": {
+                    "last_10_year_transactions_mortgage": last_10_year_transactions_mortgage,
+                    "residential_properties_transactions_mortgage": residential_properties_transactions_mortgage
+                }
+            }
+        )
+        new_project["last_10_year_transactions_mortgage"] = last_10_year_transactions_mortgage
+        new_project["residential_properties_transactions_mortgage"] = residential_properties_transactions_mortgage
+        new_project["_id"] = str(new_project["_id"])
         return {"msg": "project added successfully",
                 "new_project": new_project}
 

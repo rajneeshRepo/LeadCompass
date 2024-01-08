@@ -35,12 +35,10 @@ while True:
     query = {}  # You can add additional filters if needed
     print(last_processed_id)
     latest_project = collection_project.find_one({}, sort=[("_id", -1)])
-    print(latest_project)
     latest_project_id = latest_project.get("project_id", 0)
 
     query["project_id"] = latest_project_id
-    print(latest_project_id)
-    print(query)
+
     if last_processed_id:
         query["_id"] = {"$gt": ObjectId(last_processed_id)}
 
