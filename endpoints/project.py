@@ -113,7 +113,8 @@ async def create_project(background_tasks: BackgroundTasks, file: UploadFile = F
         }
 
         result_project = collection_project.insert_one(new_project)
-        collection_sam.update_many({"_id": {"$in": inserted_ids}}, {"$set": {"project_id": new_project.get('project_id')}})
+        collection_sam.update_many({"_id": {"$in": inserted_ids}},
+                                   {"$set": {"project_id": new_project.get('project_id')}})
         # collection_sam.update_many({}, {"$set": {"project_id": new_project.get('pid')}})
         new_project["_id"] = str(new_project["_id"])
 
@@ -140,18 +141,23 @@ async def get_projects(
         source = payload.get('sourceType')
         sort_order = payload.get('sortBy')
 
-        if source:
+        if str(source).lower() == "All sources":
+            filter_query["source"] = {}
+
+        elif source:
             filter_query["source"] = source
 
         sort_direction = 1
         if sort_order and sort_order.lower() == "last entry":
             sort_direction = -1
 
-        projects = collection_project.find(filter_query, {'_id': 0}).sort("created_at", sort_direction).limit(page_size).skip(
+        projects = collection_project.find(filter_query, {'_id': 0}).sort("created_at", sort_direction).limit(
+            page_size).skip(
             (page - 1) * page_size)
 
         project_list = [project for project in projects]
-        return {"msg": "projects retrieved successfully", "projects": project_list}
+        return {"msg": "projects retrieved successfully", "projects": project_list,
+                "projects_total_count": len(project_list)}
 
     except HTTPException as http_exception:
         raise http_exception

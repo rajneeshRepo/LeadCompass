@@ -129,7 +129,7 @@ async def get_modules(
 
         filter_query = {}
 
-        modules = collection_module.find(filter_query, {'_id': 0}).sort("created_at", 1).limit(page_size).skip(
+        modules = collection_module.find(filter_query).sort("created_at", 1).limit(page_size).skip(
             (page - 1) * page_size)
 
         module_list = [module for module in modules]
