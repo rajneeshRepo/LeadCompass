@@ -62,7 +62,7 @@ async def create_module(filters: TransactionFilters, project_id: int = Body(...)
         print(project_id)
         print(user)
 
-        query_filter = {}
+        query_filter = {"ProjectId": project_id}
 
         if filters.amount and filters.amount != "All Amounts":
             # if filters.amount.value == 'All Amounts':
