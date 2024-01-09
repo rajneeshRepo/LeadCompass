@@ -115,7 +115,7 @@ async def create_project(background_tasks: BackgroundTasks, file: UploadFile = F
         new_project = {
             "_id": ObjectId(),
             "project_id": collection_project.count_documents({}) + 1,
-            "user_mail": user.get('email'),
+            "user_email": user.get('email'),
             "total_mortgage_transaction": len(companies),
             "created_at": datetime.now(),
             "status": "complete"
@@ -181,11 +181,11 @@ async def get_projects(
         source = payload.get('sourceType')
         sort_order = payload.get('sortBy')
 
-        if str(source).lower() == "All sources":
-            filter_query["source"] = {}
+        print(source)
+        print(sort_order)
 
-        elif source:
-            filter_query["source"] = source
+        if source and str(source).lower() != "all sources":
+            filter_query["source"] = str(source).lower()
 
         sort_direction = 1
         if sort_order and sort_order.lower() == "last entry":
