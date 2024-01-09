@@ -39,6 +39,11 @@ def get_project_collection():
     project_collection = db["project"]
     return project_collection
 
+def get_mvp_groupby_collection():
+    client = MongoClient("mongodb://localhost:27017")
+    db = client["lead_compass"]
+    group_mvp_collection = db["group_mvp"]
+    return group_mvp_collection
 
 # async def run_script(script_path):
 #     process = await asyncio.create_subprocess_exec("python", script_path)
@@ -130,6 +135,7 @@ async def create_project(background_tasks: BackgroundTasks, file: UploadFile = F
                                    {"$set": {"project_id": new_project.get('project_id')}})
 
         run_scripts()
+
         project_id = new_project["project_id"]
 
         last_10_year_transactions_mortgage = collection_sam.count_documents({
@@ -192,6 +198,24 @@ async def get_projects(
         project_list = [project for project in projects]
         return {"msg": "projects retrieved successfully", "projects": project_list,
                 "projects_total_count": len(project_list)}
+
+    except HTTPException as http_exception:
+        raise http_exception
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/project/{id}')
+async def get_user_by_id(id: str):
+    try:
+        collection_project = get_project_collection()
+        project = collection_project.find_one({"project_id": int(id)})
+
+        if project:
+            project["_id"] = str(project["_id"])
+            return {"msg": "Project retrieved successfully", "project": project}
+        else:
+            raise HTTPException(status_code=404, detail="Project not found")
 
     except HTTPException as http_exception:
         raise http_exception

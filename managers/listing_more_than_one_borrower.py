@@ -50,7 +50,7 @@ result = list(collection_source.aggregate(pipeline))
 
 # Extract Borrowers with count greater than one to a list
 borrowers_list = [entry["Borrower"] for entry in result]
-print(borrowers_list)
+print(len(borrowers_list))
 
 # Update each row in the collection
 for borrower in borrowers_list:

@@ -20,6 +20,7 @@ source_collection_name = "mvp"
 target_collection_name = "group_mvp"
 
 source_collection = db[source_collection_name]
+collection_mvp_group = db["group_mvp"]
 
 
 def get_current_time():
@@ -30,8 +31,16 @@ st = get_current_time()
 
 latest_project = collection_project.find_one({}, sort=[("_id", -1)])
 latest_project_id = latest_project.get("project_id", 0)
+
 # Define your filter criteria
 filter_criteria = {"ProjectId": latest_project_id}
+
+# update_statement = {
+#     "$set": {"projectID": latest_project_id}
+# }
+#
+# # Perform the update using the filter criteria
+# collection_mvp_group.update_one(filter_criteria, update_statement)
 
 cursor = source_collection.find(filter_criteria).limit(5000)
 
@@ -52,6 +61,7 @@ def map_to_dict(x):
 
 # Group by 'Borrower' and perform aggregation
 grouped_df = df.groupby('RcCalBorrower').agg(
+    ProjectId=('ProjectId', 'first'),
     RcCalTotalLoanAmount=('RcCalPartialLoanAmount', 'sum'),
     RcCalNumberOfLoans=('RcCalBorrower', 'count'),
 
