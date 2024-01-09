@@ -139,12 +139,13 @@ async def create_project(background_tasks: BackgroundTasks, file: UploadFile = F
         project_id = new_project["project_id"]
 
         last_10_year_transactions_mortgage = collection_sam.count_documents({
-            "residential_tag": 1,
+            "time_tag": "N",
             "project_id": project_id
         })
 
         residential_properties_transactions_mortgage = collection_sam.count_documents({
             "time_tag": "N",
+            "residential_tag": 1,
             "project_id": project_id
         })
         collection_project.update_one(
