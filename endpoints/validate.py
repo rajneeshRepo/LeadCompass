@@ -9,6 +9,7 @@ from pymongo import MongoClient
 import os
 from schemas.sam import PropertyData
 from utils import hash_password, verify_password, upload_file
+import traceback
 
 router = APIRouter(
     prefix="/project",
@@ -34,7 +35,8 @@ def handle_non_serializable(obj):
 
 
 def check_missing_fields(companies_headers, fields_list):
-    missing_field = [value for value in fields_list if value not in companies_headers]
+    missing_field = [
+        value for value in fields_list if value not in companies_headers]
     return missing_field
 
 
@@ -54,26 +56,17 @@ def validate_fields(companies: List[dict], companies_headers: List):
     # print(companies_headers)
     missing_fields = check_missing_fields(companies_headers, fields_list)
     if missing_fields:
-        return {"msg": "invalid_file ", "missing_field": missing_fields}
+        return {"msg": "invalid_file", "missing_field": missing_fields, "is_valid": False}
 
-    error_details = []
+    invalid_transactions = []
     for company in companies:
         try:
             PropertyData(**company)
 
         except ValidationError as e:
-            error_detail = {
-                # "company_data": company['_id'],
-                "errors": e.errors(),
-                "error_count": len(e.errors())
-            }
-            error_details.append(error_detail)
+            invalid_transactions.append(company)
 
-    if error_details:
-        total_errors = sum(detail["error_count"] for detail in error_details)
-        return {"error_details": error_details, "total_errors": total_errors}
-    else:
-        return {"msg": "All companies have valid data"}
+    return {"msg": "file validated successfully", "invalid_transactions": invalid_transactions, "is_valid": True}
 
 
 @router.post('/validate')
@@ -103,7 +96,8 @@ async def validate_file(api_key: str = Body(None), source: str = Body(None), fil
 
             if invalid_data.get('error_details'):
                 return invalid_data
-            return {"msg": "file validated successfully", "companies": companies}
+
+            return {"msg": "file validated successfully", "is_valid": True}
 
         elif api_key:
             if str(source).lower() == "forecasa" and api_key == "fNc4oVFWFjx1SZX9YdI0MRzWaE3Jlh7":
@@ -119,6 +113,7 @@ async def validate_file(api_key: str = Body(None), source: str = Body(None), fil
         raise http_exception
 
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -128,7 +123,7 @@ async def create_api_key(api_key: str = Body(None), source: str = Body(None)):
         api_key_collection = get_api_key_collection()
         if (str(source).lower() == "forecasa" and api_key == "fNc4oVFWFjx1SZX9YdI0MRzWaE3Jlh7") or \
                 (str(source).lower() == "blacknight" and api_key == "b2Gz8tO0YsFb1v6iPpTmAj9KkH7hJqLx"
-                ):
+                 ):
             query = {"api_key": api_key, "source": str(source).lower()}
             existing_key = api_key_collection.find_one(query)
             if existing_key:

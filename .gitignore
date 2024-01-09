@@ -9,6 +9,8 @@
 # Python cache directories
 __pycache__/
 
+.vscode
+
 .idea/
 
 /env/

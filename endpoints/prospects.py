@@ -2,18 +2,21 @@ from datetime import datetime
 
 from bson import ObjectId
 from dotenv import load_dotenv, find_dotenv
-from fastapi import APIRouter, HTTPException, Depends, Body, Query, BackgroundTasks, UploadFile, File
+from fastapi import APIRouter, HTTPException, Depends, Body, Query, BackgroundTasks, UploadFile, File, status
 import subprocess
+from typing import Optional
 from pymongo import MongoClient
 from pymongo.collection import Collection
 import asyncio
-
+from schemas.module import ModuleResponse
 from Oauth import get_current_user, create_access_token
 from config.db import get_collection
 from schemas import CreateUserSchema, UserBaseSchema
 from schemas.project import CreateProject
 from utils import hash_password, verify_password, upload_file
 import os
+import traceback
+from schemas.prospect import ProspectResponse
 
 router = APIRouter(
     prefix="",
@@ -39,28 +42,30 @@ def get_module_collection():
     return module_collection
 
 
-def get_group_mvp_collection():
+def get_prospects_collection():
     client = MongoClient("mongodb://localhost:27017")
     db = client["lead_compass"]
-    mvp_group_collection = db["group_mvp"]
+    mvp_group_collection = db["prospects"]
     return mvp_group_collection
 
 
-@router.get('/prospect')
-async def get_prospects(module_id: str):
+@router.get('/prospects/all', response_description="List of modules", response_model=ProspectResponse, response_model_by_alias=False, status_code=status.HTTP_200_OK)
+async def get_prospects(
+        module_id: Optional[str] = Query(None),
+        page_size: int = Query(10, ge=1),
+        page: int = Query(1, ge=1),):
     try:
-        collection_mvp_group = get_group_mvp_collection()
+        collection_module = get_module_collection()
+        module = collection_module.find_one({"_id": ObjectId(module_id)})
+        if not module:
+            raise HTTPException(status_code=404, detail="Module not found")
+        
+        collection_prospects = get_prospects_collection()
+        prospects = list(collection_prospects.find({"module_id": ObjectId(module_id)}).limit(page_size).skip((page - 1) * page_size))
+        total_prospects = collection_prospects.count_documents({"module_id": ObjectId(module_id)})
 
-        # given_module_id = "659a928c52d60cb5405adc38"
+        return ProspectResponse(message="Prospects fetched successfully", total=total_prospects, result=prospects)
 
-        query = {"RcCalTransactions.module_id": {"$eq": module_id}}
-        result = list(collection_mvp_group.find(query))
-
-        for prospect in result:
-            prospect["_id"] = str(prospect["_id"])
-            # prospect["RcCalTransactions.module_id"] = str(prospect["RcCalTransactions.module_id"])
-
-        return {"msg": "prospects fetched successfully", "prospects": result}
 
     except HTTPException as http_exception:
         raise http_exception
@@ -109,9 +114,11 @@ async def get_prospect_timeline(module_id: str):
         return {"msg": "prospect timeline fetched successfully", "data": result_dict}
 
     except HTTPException as http_exception:
+        traceback.print_exc()
         raise http_exception
 
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
 # @router.get('/prospect/timeline')
