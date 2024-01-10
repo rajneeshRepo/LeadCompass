@@ -57,48 +57,53 @@ def get_prospects_collection():
 
 
 @router.post('/module', response_model=ModuleResponse, response_model_by_alias=False, response_description="Module added successfully", status_code=status.HTTP_201_CREATED)
-async def create_module(filters: TransactionFilters, project_id: int = Body(...), user: UserBaseSchema = Depends(get_current_user)):
+async def create_module(filters: TransactionFilters, module_name: str = Body(...), project_id: int = Body(...), user: UserBaseSchema = Depends(get_current_user)):
     try:
         print(project_id)
         print(user)
 
         query_filter = {"ProjectId": project_id}
 
-        if filters.amount and filters.amount != "All Amounts":
-            # if filters.amount.value == 'All Amounts':
-            #     query_filter["RcCalTotalLoanAmount"] = {}
+        if filters.amount and filters.amount.value:
+            if filters.amount.prefix == "less_than_equal_to":
+                query_filter["RcCalTotalLoanAmount"] = {
+                    "$lte": filters.amount.value}
 
-            if filters.amount.value == 'Less than $100,000':
-                query_filter["RcCalTotalLoanAmount"] = {"$lt": 100000}
+            if filters.amount.prefix == "greater_than_equal_to":
+                query_filter["RcCalTotalLoanAmount"] = {
+                    "$gte": filters.amount.value}
 
-            if filters.amount.value == 'Greater than $100,000':
-                query_filter["RcCalTotalLoanAmount"] = {"$gt": 100000}
+        if filters.transaction_count and filters.transaction_count.value:
+            if filters.transaction_count.prefix == "less_than_equal_to":
+                query_filter["RcCalNumberOfTransactions"] = {
+                    "$lte": filters.transaction_count.value}
+                
+            if filters.transaction_count.prefix == "greater_than_equal_to":
+                query_filter["RcCalNumberOfTransactions"] = {
+                    "$gte": filters.transaction_count.value}
+        
+        if filters.transaction_year and filters.transaction_year.value:
+            if filters.transaction_year.prefix == "less_than_equal_to":
+                query_filter["RcCalLatestTransactionDate"] = {
+                    "$lte": filters.transaction_year.value}
+                
+            if filters.transaction_year.prefix == "greater_than_equal_to":
+                query_filter["RcCalLatestTransactionDate"] = {
+                    "$gte": filters.transaction_year.value}
 
-        if filters.transaction_count and filters.transaction_count != "All Transactions":
-            # if filters.transaction_count.value == 'All Transactions':
-            #     query_filter["RcCalNumberOfLoans"] = {}
+        # if filters.duration and filters.duration.value: 
 
-            if filters.transaction_count.value == 'Greater than 1':
-                query_filter["RcCalNumberOfLoans"] = {"$gt": 1}
-
-            if filters.transaction_count.value == 'Less than 10':
-                query_filter["RcCalNumberOfLoans"] = {"$lt": 10}
-
-            if filters.transaction_count.value == 'Greater than 10':
-                query_filter["RcCalNumberOfLoans"] = {"$gt": 10}
-
-        if filters.duration and filters.duration != "All Durations":
             # if filters.duration.value == 'All Durations':
             #     query_filter["RcCalLatestTransactionDate"] = {}
 
-            if filters.transaction_count.value == 'Less than 6 months':
-                query_filter["RcCalLatestTransactionDate"] = {"$gt": 1}
+            # if filters.transaction_count.value == 'Less than 6 months':
+            #     query_filter["RcCalLatestTransactionDate"] = {"$gt": 1}
 
-            if filters.transaction_count.value == 'Less than 1 year':
-                query_filter["RcCalLatestTransactionDate"] = {"$lt": 10}
+            # if filters.transaction_count.value == 'Less than 1 year':
+            #     query_filter["RcCalLatestTransactionDate"] = {"$lt": 10}
 
-            if filters.transaction_count.value == 'Greater than 1 year':
-                query_filter["RcCalLatestTransactionDate"] = {"$gt": 10}
+            # if filters.transaction_count.value == 'Greater than 1 year':
+            #     query_filter["RcCalLatestTransactionDate"] = {"$gt": 10}
 
         if filters.states and len(filters.states) != 0:
             if (filters.county_codes and len(filters.county_codes) > 0):
@@ -109,7 +114,7 @@ async def create_module(filters: TransactionFilters, project_id: int = Body(...)
                     "$exists": True}} for state in filters.states]
 
         if filters.borrower_type and filters.borrower_type != "All Borrowers":
-            borrower_type = 'I' if filters.borrower_type == "Individual" else 'C'
+            borrower_type = 'I' if filters.borrower_type.lower() == "individual" else 'C'
             query_filter[f"RcCalType.{borrower_type}"] = {"$exists": True}
 
         collection_mvp_grp = get_group_mvp_collection()
@@ -132,10 +137,13 @@ async def create_module(filters: TransactionFilters, project_id: int = Body(...)
         
         project["_id"] = str(project["_id"])
 
-        module_count = get_module_collection().count_documents({"project_id": project["_id"]})
+        module = get_module_collection().find_one({"project_id":  project["_id"],"name": {"$regex": f"^{module_name.strip()}$", "$options": "i"}})
+
+        if module:
+            raise HTTPException(status_code=400, detail="Module already exists")
 
         module_obj = {
-            "name": f"Module {module_count+1}",
+            "name": module_name,
             "status": "bronze",
             "project_id": project["_id"],
             "project": project,

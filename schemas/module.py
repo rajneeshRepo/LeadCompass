@@ -26,11 +26,14 @@ class DurationOptions(str, Enum):
     LESS_THAN_1_YEAR = "Less than 1 year"
     GREATER_THAN_1_YEAR = "Greater than 1 year"
 
+class PrefixedValues(BaseModel):
+    prefix: str
+    value: Optional[int] = None
 
 class TransactionFilters(BaseModel):
-    amount: Optional[AmountOptions] = None
-    transaction_count: Optional[TransactionCountOptions] = None
-    duration: Optional[DurationOptions] = None
+    amount: Optional[PrefixedValues] = None
+    transaction_count: Optional[PrefixedValues] = None
+    transaction_year: Optional[PrefixedValues] = None
     borrower_type: Optional[str] = None
     states: Optional[list[str]] = []
     county_codes: Optional[list[str]] = []

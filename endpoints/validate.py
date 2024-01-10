@@ -86,6 +86,7 @@ async def validate_file(api_key: str = Body(None), source: str = Body(None), fil
 
                 elif response.get("type") == "xlsx":
                     companies = response.get('data', [])
+                    companies_headers = response.get('headers', [])
 
             if not companies:
                 return {"msg": "No Companies Provided in request"}

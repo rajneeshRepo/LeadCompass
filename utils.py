@@ -70,6 +70,7 @@ async def upload_file(file: UploadFile = File(...)):
             elif file_extension.lower() == "xlsx":
                 df = pd.read_excel(io.BytesIO(contents))
                 df = df.where(pd.notna(df), None)
+                headers = df.columns.tolist()
                 json_data = df.to_json(orient='records', date_format='iso', default_handler=str)
                 return {"msg": "xlxs file received", "data": json.loads(json_data), "status_code": 200, "type": "xlsx"}
 
