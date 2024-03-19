@@ -25,7 +25,7 @@ class ContactSchema(BaseModel):
 
     @validator("person_contact")
     def validate_contact_value(cls, v, values):
-        print(values)
+
         if "contact_type" in values:
             if values["contact_type"] == ContactEnum.PHONE and "@" in v:
                 raise ValueError("should be a valid phone number, not email address")
@@ -34,16 +34,21 @@ class ContactSchema(BaseModel):
         return v
     
 class ContactUpdateSchema(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    id: PyObjectId = Field(alias="_id")
     people_id: int
     contact_type: ContactEnum
     person_contact: Union[str, EmailStr]  # Represents either an email or a phone number
     is_primary: Optional[bool] = False
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+    )
     
 
     @validator("person_contact")
     def validate_contact_value(cls, v, values):
-        print(values)
+
         if "contact_type" in values:
             if values["contact_type"] == ContactEnum.PHONE and "@" in v:
                 raise ValueError("should be a valid phone number, not email address")

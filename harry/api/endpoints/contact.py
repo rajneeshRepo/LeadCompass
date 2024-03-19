@@ -53,10 +53,12 @@ async def create_contact(contact: ContactSchema):
 
 #write api to update contact
 @router.put('/contact', response_model_by_alias=False, response_description="Contact updated successfully", status_code=status.HTTP_200_OK)
-async def update_contact(contact_data: ContactUpdateSchema = None):
+async def update_contact(contact_data: ContactUpdateSchema):
     try:
             
         collection_contact = get_contact_collection()
+        print(contact_data)
+        print(contact_data.id)
         contact = collection_contact.find_one({"_id": ObjectId(contact_data.id)})
 
         if not contact:
