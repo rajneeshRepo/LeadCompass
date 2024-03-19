@@ -24,8 +24,17 @@ class PeopleSchema(BaseModel):
         arbitrary_types_allowed=True,
     )
 
+
 class PeopleUpdateSchema(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    id: PyObjectId = Field(alias="_id")
+    name: Optional[str] = None
+    linkedin_id: Optional[str] = None
+    title : Optional[int] = None
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+    )
 
 
 class PeopleResponse(BaseModel):

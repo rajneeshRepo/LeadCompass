@@ -126,13 +126,13 @@ async def update_organization(organization_data: OrganizationUpdateSchema):
         if not organization:
             raise HTTPException(status_code=404, detail=f'No organization with this id: {organization_data.id} found')
 
-        organization_data = {
-            k: v for k, v in organization_data.model_dump(by_alias=True).items() if v is not None
+        updated_organization_data = {
+            k: v for k, v in organization_data.model_dump(by_alias=True,exclude={"id"}).items() if v is not None
         }
-        print(organization_data)
+        print(updated_organization_data)
         update_result = collection_organization.find_one_and_update(
             {"_id": ObjectId(organization_data.id)},
-            {"$set": organization_data}
+            {"$set": updated_organization_data}
         )
 
         return {"msg": "Organization updated successfully"} 

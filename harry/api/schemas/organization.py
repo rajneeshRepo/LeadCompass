@@ -30,7 +30,7 @@ class OrganizationSchema(BaseModel):
     )
 
 class OrganizationUpdateSchema(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    id: PyObjectId = Field(alias="_id")
     name: Optional[str] = None
     address: Optional[str] = None
     annual_revenue : Optional[int] = None
@@ -40,7 +40,7 @@ class OrganizationUpdateSchema(BaseModel):
     website : Optional[str] = None
     city : Optional[str] = None
     state : Optional[str] = None
-    last_modified: str = None
+    last_modified: str 
 
 
     model_config = ConfigDict(

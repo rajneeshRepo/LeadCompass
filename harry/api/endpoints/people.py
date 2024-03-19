@@ -51,6 +51,39 @@ async def create_person(person: PeopleSchema = None):
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+#write api to update person
+@router.put('/people', response_model_by_alias=False, response_description="Person updated successfully", status_code=status.HTTP_200_OK)
+async def update_person(person_data: PeopleUpdateSchema = None):
+    try:
+            
+        collection_people = get_people_collection()
+        person = collection_people.find_one({"_id": ObjectId(person_data.id)})
+
+        if not person:
+            raise HTTPException(status_code=404, detail=f'No person with this id: {person_data.id} found')
+
+        updated_person_data = {
+            k: v for k, v in person_data.model_dump(by_alias=True,exclude={"id"}).items() if v is not None
+        }
+
+        update_result = collection_people.find_one_and_update(
+            {"_id": ObjectId(person_data.id)},
+            {"$set": updated_person_data}
+        )
+
+        return {"msg": "person updated successfully"} 
+    
+    except HTTPException as http_exception:
+        raise http_exception
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+
+
 
 
 # @router.get('/people/all', response_description="List of peoples for particular organization", response_model=PeopleResponse, response_model_by_alias=False, status_code=status.HTTP_200_OK)
