@@ -1,4 +1,4 @@
-import { DashboardOutlined } from '@ant-design/icons';
+import { DashboardOutlined , ProjectOutlined} from '@ant-design/icons';
 import { APP_PREFIX_PATH } from 'configs/AppConfig'
 
 
@@ -21,8 +21,19 @@ const dashBoardNavTree = [{
   ]
 }]
 
+// const organizationNavTree = [
+//   {
+//     key: 'organizations',
+//     path: `${APP_PREFIX_PATH}/organizations/*`,
+//     title: "sidenav.organizations",
+//     icon: ProjectOutlined,
+//     breadcrumb: false,
+//   },
+// ];
+
 const navigationConfig = [
-  ...dashBoardNavTree
+  ...dashBoardNavTree,
+  // ...organizationNavTree
 ]
 
 export default navigationConfig;
