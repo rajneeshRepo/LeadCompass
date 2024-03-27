@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from datetime import datetime
 from bson import ObjectId
-from utils import hash_password, verify_password
+from util.passutil import get_password_hash, verify_password
 from schemas.user import UserSchema,UserResponse
 import os
 
@@ -41,7 +41,7 @@ async def create_user(user: UserSchema = None):
             "email": user.email,
             "first_name": user.first_name,
             "last_name": user.last_name,
-            "password": hash_password(user.password),
+            "password": get_password_hash(user.password),
             "role": user.role,
             "created_at": datetime.now()
         }

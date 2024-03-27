@@ -1,0 +1,11 @@
+/* styles.css */
+.emailInput {
+    width: 496px;
+    height: 51px;
+    position: absolute;
+    top: 211px;
+    left: 96px;
+    padding: 3.5px 313px 2.5px 12px;
+    gap: 0px;
+    opacity: 0;
+  }

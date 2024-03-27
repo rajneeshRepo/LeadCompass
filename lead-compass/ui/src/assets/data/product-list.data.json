@@ -1,0 +1,30 @@
+[
+    {
+      "id": 1,
+      "name": "John Doe",
+      "status": "enable",
+      "phone": "1234567890",
+      "role": "user",
+      "isAuthenticated": true,
+      "email": "john.doe@example.com"
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "status": "disable",
+      "phone": "9876543210",
+      "role": "user",
+      "isAuthenticated": true,
+      "email": "jane.smith@example.com"
+    },
+    {
+      "id": 3,
+      "name": "Bob Johnson",
+      "status": "enable",
+      "phone": "5551234567",
+      "role": "admin",
+      "isAuthenticated": false,
+      "email": "bob.johnson@example.com"
+    }
+]
+  
