@@ -1,0 +1,6 @@
+fastapi[all]
+pandas
+pymongo
+passlib
+python-dotenv
+utils
