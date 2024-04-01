@@ -14,6 +14,7 @@ import {
 } from "react-router-dom";
 // import NoProjectsImage from "assets/images/no_projects.png";
 import OrganizationsList from "./organization-list"
+import { LeadProfile } from "./view-organization"
 
 
 const SORT_OPTIONS = ["First entry", "Last entry"];
@@ -84,6 +85,7 @@ export const Organizations = () => {
       <Routes>
         <Route path="" element={<OrganizationsList />}></Route>
         <Route path="create" element={<AddNewOrganization />}></Route>
+        <Route path="view" element={< LeadProfile/>}></Route>
         {/* <Route
           path=":projectId"
           element={<Navigate to="modules" replace />}
