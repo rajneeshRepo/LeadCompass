@@ -23,6 +23,7 @@ class OrganizationSchema(BaseModel):
     state : Optional[str] = ""
     last_modified: str = None
     created_at: datetime = None
+    user_id: PyObjectId = None
 
     model_config = ConfigDict(
         populate_by_name=True,

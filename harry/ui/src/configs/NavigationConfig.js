@@ -1,4 +1,4 @@
-import { DashboardOutlined , ProjectOutlined} from '@ant-design/icons';
+import { DashboardOutlined , ProjectOutlined,FileOutlined} from '@ant-design/icons';
 import { APP_PREFIX_PATH } from 'configs/AppConfig'
 
 
@@ -21,6 +21,30 @@ const dashBoardNavTree = [{
   ]
 }]
 
+const admin =[
+  {
+    key: 'report',
+    path: `${APP_PREFIX_PATH}/report`,
+    title: "Report",
+    icon: FileOutlined,
+    breadcrumb: false,
+    isGroupTitle: false,
+    submenu: []
+  },
+
+  {
+    key: 'manage_resources',
+    path: `${APP_PREFIX_PATH}/resource_info`,
+    title: "Manage Resources",
+    icon: FileOutlined,
+    breadcrumb: false,
+    isGroupTitle: false,
+    submenu: []
+  },
+
+
+]
+
 // const organizationNavTree = [
 //   {
 //     key: 'organizations',
@@ -33,6 +57,7 @@ const dashBoardNavTree = [{
 
 const navigationConfig = [
   ...dashBoardNavTree,
+  ...admin
   // ...organizationNavTree
 ]
 

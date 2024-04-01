@@ -14,9 +14,18 @@ export const initialState = {
 export const signIn = createAsyncThunk('auth/login',async (data, { rejectWithValue }) => {
 	const { email, password } = data
 	try {
-		const response = await AuthService.login({email, password})
-		const token = response.data.token;
+		const response = await AuthService.login({email, password});
+		const token = response.result.password;
+		const role = response.result.role;
+		const first_name = response.result.first_name;
+		const last_name = response.result.last_name;
+		const username = response.result.username;
 		localStorage.setItem(AUTH_TOKEN, token);
+		localStorage.setItem('role', role);
+		localStorage.setItem('first_name', first_name);
+		localStorage.setItem('last_name', last_name);
+		localStorage.setItem('email', email);
+		localStorage.setItem('username', username);	
 		return token;
 	} catch (err) {
 		return rejectWithValue(err.response?.data?.message || 'Error')

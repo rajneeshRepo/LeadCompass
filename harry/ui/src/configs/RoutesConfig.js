@@ -30,5 +30,20 @@ export const protectedRoutes = [
         path: `${APP_PREFIX_PATH}/organizations/*`,
         component: React.lazy(() => import('views/app-views/organizations')),
     },
+    {
+        key: 'report',
+        path: `${APP_PREFIX_PATH}/report`,
+        component: React.lazy(() => import('views/app-views/admin/report')),
+    },
+    {
+        key: 'resource',
+        path: `${APP_PREFIX_PATH}/resource_info/:type`,
+        component: React.lazy(() => import('views/app-views/admin/add_resource')),
+    },
+    {
+        key:'resource_info',
+        path: `${APP_PREFIX_PATH}/resource_info`,
+        component: React.lazy(() => import('views/app-views/admin/resource_info')),
+    }
 
 ]

@@ -15,6 +15,7 @@ import {
 } from 'store/slices/authSlice';
 import { useNavigate } from 'react-router-dom'
 import { motion } from "framer-motion"
+import './login.css';
 
 export const LoginForm = props => {
 	
@@ -38,25 +39,25 @@ export const LoginForm = props => {
 		allowRedirect = true
 	} = props
 
-	const initialCredential = {
-		email: 'user1@themenate.net',
-		password: '2005ipo'
-	}
+
+
+	const emailInputStyle = {
+		width: '496px',
+		height: '51px',
+		position: 'absolute',
+		top: '211px',
+		left: '96px',
+		padding: '3.5px 313px 2.5px 12px',
+		gap: '0px',
+		opacity: '0',
+	  };
 
 	const onLogin = values => {
 		showLoading()
 		signIn(values);
 	};
 
-	const onGoogleLogin = () => {
-		showLoading()
-		signInWithGoogle()
-	}
 
-	const onFacebookLogin = () => {
-		showLoading()
-		signInWithFacebook()
-	}
 
 	useEffect(() => {
 		if (token !== null && allowRedirect) {
@@ -70,31 +71,6 @@ export const LoginForm = props => {
 		}
 	});
 	
-	const renderOtherSignIn = (
-		<div>
-			<Divider>
-				<span className="text-muted font-size-base font-weight-normal">or connect with</span>
-			</Divider>
-			<div className="d-flex justify-content-center">
-				<Button 
-					onClick={() => onGoogleLogin()} 
-					className="mr-2" 
-					disabled={loading} 
-					icon={<CustomIcon svg={GoogleSVG}/>}
-				>
-					Google
-				</Button>
-				<Button 
-					onClick={() => onFacebookLogin()} 
-					icon={<CustomIcon svg={FacebookSVG}/>}
-					disabled={loading} 
-				>
-					Facebook
-				</Button>
-			</div>
-		</div>
-	)
-
 	return (
 		<>
 			<motion.div 
@@ -108,9 +84,9 @@ export const LoginForm = props => {
 			<Form 
 				layout="vertical" 
 				name="login-form" 
-				initialValues={initialCredential}
 				onFinish={onLogin}
 			>
+
 				<Form.Item 
 					name="email" 
 					label="Email" 
@@ -123,10 +99,13 @@ export const LoginForm = props => {
 							type: 'email',
 							message: 'Please enter a validate email!'
 						}
-					]}>
-					<Input prefix={<MailOutlined className="text-primary" />}/>
+					]}
+					>
+					<Input prefix={<MailOutlined className="text-primary" />} style={{width:"496px", borderRadius:0}} />
 				</Form.Item>
+
 				<Form.Item 
+				
 					name="password" 
 					label={
 						<div className={`${showForgetPassword? 'd-flex justify-content-between w-100 align-items-center' : ''}`}>
@@ -149,16 +128,16 @@ export const LoginForm = props => {
 						}
 					]}
 				>
-					<Input.Password prefix={<LockOutlined className="text-primary" />}/>
+					<Input.Password prefix={<LockOutlined className="text-primary" />} style={{width:"496px", borderRadius:0}}/>
 				</Form.Item>
 				<Form.Item>
-					<Button type="primary" htmlType="submit" block loading={loading}>
+					<Button htmlType="submit" block loading={loading} style={{width:"496px", borderRadius:0, background:"#565E6D", color:"#FFFFFF"}}>
 						Sign In
 					</Button>
 				</Form.Item>
-				{
+				{/* {
 					otherSignIn ? renderOtherSignIn : null
-				}
+				} */}
 				{ extra }
 			</Form>
 		</>

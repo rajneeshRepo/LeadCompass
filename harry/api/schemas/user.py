@@ -13,7 +13,6 @@ PyObjectId = Annotated[str, BeforeValidator(str)]
 
 class UserSchema(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    username: str
     email: EmailStr
     first_name: Optional[str] = ""
     last_name: Optional[str] = ""
