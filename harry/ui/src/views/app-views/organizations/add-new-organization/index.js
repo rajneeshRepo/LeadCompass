@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Card, Form, Input, Button, Row, Col, message } from "antd";
 import { useNavigate } from "react-router-dom";
 // import { useQueryClient } from "react-query";
-import { GlobalOutlined , PhoneOutlined , TeamOutlined } from "@ant-design/icons";
+import { GlobalOutlined , PhoneOutlined , TeamOutlined, UserAddOutlined } from "@ant-design/icons";
 // import { useMutation } from "react-query";
 // import { useOrganization } from "context/organization-context";
 // import { useUser } from "context/user-context";
 import { useLocation } from "react-router-dom";
+import "./style.css";
 
 export const AddNewOrganization = () => {
   const navigate = useNavigate();
@@ -287,28 +288,32 @@ export const AddNewOrganization = () => {
             </Col>
         </Row>
         <Form.Item>
-            <Button
+        <Button
             type="primary"
             htmlType="submit"
             onClick={() => {
-                navigate("/app/organizations/create");
+            navigate("/app/organizations/create");
             }}
-            >
+        >
+            <span style={{ marginRight: 8 }}> {/* Adjust the marginRight value as needed */}
+            <UserAddOutlined />
+            </span>
             Add Decision Maker
-            </Button>
+        </Button>
         </Form.Item>
     </Form>
     </Card>
 
     {/* Add Button For Add Organization or cancel Organization */}
-    <Row justify="space-between">
+    <Row justify="end" >
       <Col>
         <Button
-          type="primary"
+          type="secondary"
           htmlType="submit"
           onClick={() => {
             navigate("/app/organizations");
           }}
+          className="cancelButton"
         >
           Cancel
         </Button>

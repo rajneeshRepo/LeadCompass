@@ -7,18 +7,18 @@ import history from './history'
 import Layouts from './layouts'
 import { THEME_CONFIG } from './configs/AppConfig';
 import './lang'
-import mockServer from './mock'
+// import mockServer from './mock'
 
 const themes = {
   dark: `${process.env.PUBLIC_URL}/css/dark-theme.css`,
   light: `${process.env.PUBLIC_URL}/css/light-theme.css`,
 };
 
-const environment = process.env.NODE_ENV
+// const environment = process.env.NODE_ENV
 
-if (environment !== 'production') {
-	mockServer({ environment })
-}
+// if (environment !== 'production') {
+// 	mockServer({ environment })
+// }
 
 function App() {
   return (
