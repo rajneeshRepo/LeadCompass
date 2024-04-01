@@ -91,26 +91,26 @@ async def create_organization(organization: OrganizationSchema = None):
 #         raise HTTPException(status_code=500, detail=str(e))
     
 
-# @router.get('/organization/all', response_description="List of organizations", response_model=OrganizationResponse, response_model_by_alias=False, status_code=status.HTTP_200_OK)
-# async def get_organizations(
-#         page_size: int = Query(10, ge=1),
-#         page: int = Query(1, ge=1)):
-#     try:
-#         collection_organization = get_organization_collection()
+@router.get('/organization/all', response_description="List of organizations", response_model=OrganizationResponse, response_model_by_alias=False, status_code=status.HTTP_200_OK)
+async def get_organizations(
+        page_size: int = Query(10, ge=1),
+        page: int = Query(1, ge=1)):
+    try:
+        collection_organization = get_organization_collection()
 
-#         filter_query = {}
+        filter_query = {}
 
-#         organization = list(collection_organization.find(filter_query).limit(page_size).skip((page - 1) * page_size))
+        organization = list(collection_organization.find(filter_query).limit(page_size).skip((page - 1) * page_size))
 
-#         return OrganizationResponse(result=organization, total=len(organization), message="Organizations retrieved successfully")
+        return OrganizationResponse(result=organization, total=len(organization), message="Organizations retrieved successfully")
 
-#     except HTTPException as http_exception:
-#         traceback.print_exc()
-#         raise http_exception
+    except HTTPException as http_exception:
+        traceback.print_exc()
+        raise http_exception
 
-#     except Exception as e:
-#         traceback.print_exc()
-#         raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
     
 
 
