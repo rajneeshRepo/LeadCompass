@@ -7,7 +7,7 @@ from datetime import datetime
 from config.db import get_collection
 import os
 import traceback
-from schemas.organization import OrganizationSchema, OrganizationResponse, OrganizationUpdateSchema
+from schemas.organization import OrganizationResponse, OrganizationUpdateSchema,AddOrganizationSchema
 
 router = APIRouter(
     # prefix="/organization",
@@ -24,36 +24,59 @@ def get_organization_collection():
     organization_collection = db["organization"]
     return organization_collection
 
+def get_people_collection():
+    client = MongoClient(mongo_url)
+    db = client["harry"]
+    organization_collection = db["people"]
+    return organization_collection
+
+def get_user_collection():
+    client = MongoClient(mongo_url)
+    db = client["harry"]
+    organization_collection = db["user"]
+    return organization_collection
+
 @router.post('/organization', response_model_by_alias=False, response_description="Project added successfully", status_code=status.HTTP_201_CREATED)
-async def create_organization(organization: OrganizationSchema = None):
+async def create_organization(organization: AddOrganizationSchema = None):
     try:
         collection_organization = get_organization_collection()
-
+        collection_people = get_people_collection()
+        collection_user = get_user_collection()
+        user = collection_user.find_one({"email": organization.user_email})
         existing_organization = collection_organization.find_one({"name": organization.name})
 
         if existing_organization:
             raise HTTPException(status_code=404, detail="Organization already exists with this name.")
         
         new_organization = {
-            "id": ObjectId(),
-            # "user_id": user.get('id'),
-            "user_id": 1,
+            "user_id": user['_id'],
             "name": organization.name,
             "address": organization.address,
-            "annual_revenue": organization.annual_revenue,
+            "annual_revenue":organization.annual_revenue,
             "growth_from_last_year": organization.growth_from_last_year,
-            "team_size": organization.team_size,
+            "team_size": int(organization.team_size),
             "official_phone": organization.official_phone,
             "website": organization.website,
-            "city": organization.city,
+            "county": organization.county,
             "state": organization.state,
-            # "last_modified": user.get('name'),
-            "last_modified": "ujjwal",
+            "last_modified": datetime.now(),
             "created_at": datetime.now()
         }
-        new_organization = OrganizationSchema(**new_organization)
 
-        result_organization = collection_organization.insert_one(new_organization.model_dump(by_alias=True, exclude=["id"]))
+        result_organization = collection_organization.insert_one(new_organization)
+        for decision_maker in organization.decisionMakers:
+            new_decision_maker = {
+                "user_id": user["_id"],
+                "organization_id": result_organization.inserted_id,
+                "name": decision_maker.name,
+                "title": decision_maker.title,
+                "email": decision_maker.email,
+                "linkedin": decision_maker.linkedin,
+                "phone": decision_maker.phone,
+                "created_at": datetime.now(),
+                "last_modified": datetime.now()
+            }
+            collection_people.insert_one(new_decision_maker)
 
         return OrganizationResponse(message = "organization added successfully",result=new_organization, total=1)
 
@@ -61,7 +84,7 @@ async def create_organization(organization: OrganizationSchema = None):
         raise http_exception
 
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get('/organization', response_description="List of organizations", response_model=OrganizationResponse, response_model_by_alias=False, status_code=status.HTTP_200_OK)
@@ -97,11 +120,16 @@ async def get_organizations(
         page: int = Query(1, ge=1)):
     try:
         collection_organization = get_organization_collection()
+        collection_people = get_people_collection()
 
         filter_query = {}
 
         organization = list(collection_organization.find(filter_query).limit(page_size).skip((page - 1) * page_size))
 
+        for org in organization:
+            org['created_at'] = org['created_at'].strftime("%Y-%m-%d %H:%M:%S")
+            org['last_modified'] = org['last_modified'].strftime("%Y-%m-%d %H:%M:%S")
+            org['total_decision_maker'] = collection_people.count_documents({"organization_id": org['_id']})
         return OrganizationResponse(result=organization, total=len(organization), message="Organizations retrieved successfully")
 
     except HTTPException as http_exception:

@@ -31,6 +31,7 @@ class OrganizationSchema(BaseModel):
     last_modified: datetime = None
     created_at: datetime = None
     user_id: PyObjectId = None
+    total_decision_makers: Optional[int] = None
 
 
     model_config = ConfigDict(
@@ -59,10 +60,7 @@ class OrganizationUpdateSchema(BaseModel):
 
 
 
-class OrganizationResponse(BaseModel):
-    message: str
-    total: Optional[int] = None
-    result: Union[OrganizationSchema, List[OrganizationSchema]]
+
 
 
 class AddOrganizationSchema(BaseModel):
@@ -87,3 +85,8 @@ class AddOrganizationSchema(BaseModel):
         populate_by_name=True,
         arbitrary_types_allowed=True,
     )
+
+class OrganizationResponse(BaseModel):
+    message: str
+    total: Optional[int] = None
+    result: Union[OrganizationSchema, List[OrganizationSchema]]

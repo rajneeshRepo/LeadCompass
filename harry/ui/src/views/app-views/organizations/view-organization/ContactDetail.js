@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import {
   Flex,
   Card,
@@ -41,6 +42,7 @@ const CardDropdown = ({ items }) => {
 const ContactDetails = ({ lead }) => {
 
   const [form] = Form.useForm();
+  const { organizationId } = useParams();
   const [contacts, setContacts] = useState([{
   "name": "ujjwal",
   "title": "sde1",
@@ -51,7 +53,7 @@ const ContactDetails = ({ lead }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    getContactDetails();
+    getContactDetails(organizationId);
   }, []);
 
   const getContactDetails = async (id) => {

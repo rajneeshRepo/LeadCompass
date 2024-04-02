@@ -6,13 +6,14 @@ import GeneralField from "./GeneralField";
 import { useParams,useNavigate } from 'react-router-dom';
 import {RollbackOutlined} from '@ant-design/icons';
 import OrganizationService from "services/OrganizationService";
+import ApiService from 'services/ApiService';
 // import LeadService from "services/LeadService";
 
 
 
 export const LeadProfile = () => {
   const navigate = useNavigate();
-  const param = useParams();
+  const { organizationId } = useParams();
   const [organization, setOrganization] = useState({
     "organiation_name": "shorthills",
     "annual_revenue": "100M",
@@ -25,14 +26,13 @@ export const LeadProfile = () => {
 });
 
   useEffect(() => {
-    const { id } = param;
-    const OrganizationId = parseInt(id);
-    getLead(OrganizationId);
+
+    getLead(organizationId);
   }, []);
 
   const getLead = async (id) => {
     try {
-      const response = await OrganizationService.getOrganizationById({ id });
+      const response = await ApiService.harryBackendApi('organization','get',{id:id},null);
 
       const formattedOrganization = response.result.map((organization) => ({
         name: organization.name,
