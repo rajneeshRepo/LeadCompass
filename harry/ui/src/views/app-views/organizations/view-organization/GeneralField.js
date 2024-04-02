@@ -18,8 +18,8 @@ DeleteOutlined,
 import { SPACER } from "constants/ThemeConstant";
 
 import BasicDetails from "./BasicDetails";
-import LeadContacts from "./LeadContacts"
-import LatestTransactions from "./LatestTransactions"
+import ContactDetails from "./ContactDetail";
+
 
 const CardDropdown = ({ items }) => {
     return (
@@ -77,15 +77,12 @@ const GeneralField = ({ lead }) => {
       </Row>
       <Row>
         <Col xs={24} sm={24} md={24}>
-          <LeadContacts lead={lead}/>
-          {JSON.stringify(lead)}
+          <ContactDetails lead={lead}/>
+          {console.log(lead)}
+          {console.log('jsw')}
+          {/* {JSON.stringify(lead)} */}
         </Col>
       </Row>
-      {/* <Row gutter={26}>
-        <Col xs={24} sm={24} md={24}>
-          <LatestTransactions lead={lead}/>
-        </Col>
-      </Row> */}
     </>
   );
 };

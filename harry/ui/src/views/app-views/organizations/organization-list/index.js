@@ -29,27 +29,6 @@ import { SPACER } from "constants/ThemeConstant";
 
 // const TABLE_SIZE = 10
 
-// const PROJECTS = [
-//   {
-//     name: "Shorthills AI",
-//     organization_id: "77",
-//     annual_revenue: "$1M",
-//     decision_makers: "Ujjwal",
-//   },
-//   {
-//     name: "Shorthills AI",
-//     organization_id: "77",
-//     annual_revenue: "$1M",
-//     decision_makers: "Ujjwal2",
-//   },
-//   {
-//     name: "Shorthills AII",
-//     organization_id: "77",
-//     annual_revenue: "$1M",
-//     decision_makers: "Ujjwal3",
-//   },
-// ];
-
 const CardDropdown = ({ items }) => {
   return (
     <Dropdown menu={{ items }} trigger={["click"]} placement="bottomRight">
@@ -75,14 +54,24 @@ const OrganizationsList = ({onSearch}) => {
   const [minAnnualRevenue, setMinAnnualRevenue] = useState([10, 200]);
   const [maxAnnualRevenue, setMaxAnnualRevenue] = useState([10, 200]);
   const [organizations, setOrganizations] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOrganizationQuery, setSearchOrganizationQuery] = useState("");
+  const [searchPersonQuery, setSearchPersonQuery] = useState("");
+
   const handleInputChange = (value) => {
-    setSearchQuery(value);
+    setSearchOrganizationQuery(value);
+  };
+
+  const handlePersonInputChange = (value) => {
+    setSearchPersonQuery(value);
   };
 
   const handleSearch = () => {
-    console.log(searchQuery);
-    setSearchQuery(searchQuery);
+    console.log(searchOrganizationQuery);
+    setSearchOrganizationQuery(searchOrganizationQuery);
+  };
+
+  const handlePersonSearch = () => {
+    setSearchPersonQuery(searchPersonQuery);
   };
 
   const [value, setValue] = useState(0);
@@ -99,18 +88,17 @@ const OrganizationsList = ({onSearch}) => {
     async function fetchOrganizations() {
       try {
         // Only proceed if searchQuery is not an empty string
-        if (searchQuery.trim() !== "") {
+        if (searchOrganizationQuery.trim() !== "") {
           // setLoading(true);
-          // console.log("debugkelmd")
-          const response = await OrganizationService.searchOrganizations({ type: "organization", search_query: searchQuery });
-          console.log("dub");
-          console.log(response);
+          const response = await OrganizationService.searchOrganizations({ type: "organization", search_query: searchOrganizationQuery });
+          // console.log("dub");
+          // console.log(response);
           
-          if (response.result === undefined || response.result.length === 0) {
+          if (response[0].result === undefined || response[0].result.length === 0) {
             console.log("No Organizations found")
             setContacts([]); 
           } else {
-            const formattedContacts = response.result.map((contact) => ({
+            const formattedContacts = response[0].result.map((contact) => ({
               name: contact.name,
               organization_id: contact.id,
               annual_revenue: contact.annual_revenue,
@@ -127,7 +115,39 @@ const OrganizationsList = ({onSearch}) => {
     }
   
     fetchOrganizations();
-  }, [searchQuery]);
+  }, [searchOrganizationQuery]);
+
+
+  useEffect(() => {
+    async function fetchPerson() {
+      try {
+        // Only proceed if searchQuery is not an empty string
+        if (searchPersonQuery.trim() !== "") {
+          // setLoading(true);
+          const response = await OrganizationService.searchOrganizations({ type: "person", search_query: searchPersonQuery });
+          
+          if (response[0].result === undefined || response[0].result.length === 0) {
+            console.log("No Person found")
+            setContacts([]); 
+          } else {
+            const formattedContacts = response[0].result.map((contact) => ({
+              name: contact.name,
+              organization_id: contact.id,
+              annual_revenue: contact.annual_revenue,
+              decision_makers: contact.last_modified,
+            }));
+            setContacts(formattedContacts);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching persons:", error);
+      } finally {
+        // setLoading(false);
+      }
+    }
+  
+    fetchPerson();
+  }, [searchPersonQuery]);
   
 
   const getLeadContacts = async () => {
@@ -153,9 +173,6 @@ const OrganizationsList = ({onSearch}) => {
   const queryParams = new URLSearchParams(location.search);
   console.log(queryParams);
 
-  const handleFormSubmit = (values) => {
-    console.log(values);
-  };
 
   const columns = [
     {
@@ -239,7 +256,8 @@ const OrganizationsList = ({onSearch}) => {
   //     // Pass filters to parent component
   //     onApply(filters);
   //   };
-
+  // console.log('uk_kul')
+  // console.log(contacts)
   return (
     <Card style={{ height: "90%" }} bodyStyle={{ height: "100%" }}>
       {queryParams["size"] == 1 ? (
@@ -279,9 +297,9 @@ const OrganizationsList = ({onSearch}) => {
               prefix={<SearchOutlined />}
               placeholder="Search Organizations"
               allowClear
-              value={searchQuery}
+              value={searchOrganizationQuery}
               onChange={(e) => handleInputChange(e.target.value)}
-              onPressEnter={handleSearch} // Trigger search on Enter key press
+              onPressEnter={handleSearch} 
               // onBlur={handleSearch} // Trigger search on blur (when user clicks away)
             />
           </Col>
@@ -315,26 +333,16 @@ const OrganizationsList = ({onSearch}) => {
             </Col>
 
             <Col span={6}>
-              <Form onFinish={handleFormSubmit}>
-                <Form.Item name="decisionMaker">
-                  <Select
-                    showSearch
-                    style={{ width: "100%" }}
-                    placeholder="Search Decision Makers"
-                    optionFilterProp="children"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    }
-                  >
-                    <Option value="1">Ujjwal</Option>
-                    <Option value="2">Rahul</Option>
-                    <Option value="3">Saurabh</Option>
-                  </Select>
-                </Form.Item>
-              </Form>
-            </Col>
+            <Input
+              prefix={<SearchOutlined />}
+              placeholder="Search Desicion Makers"
+              allowClear
+              value={searchPersonQuery}
+              onChange={(e) => handlePersonInputChange(e.target.value)}
+              onPressEnter={handlePersonSearch} 
+              // onBlur={handleSearch} // Trigger search on blur (when user clicks away)
+            />
+          </Col>
 
             <Col span={1} offset={10} onClick={openContactFormModal}>
               <MoreOutlined style={{ fontSize: "24px" }} />

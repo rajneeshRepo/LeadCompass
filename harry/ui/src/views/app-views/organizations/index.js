@@ -34,7 +34,7 @@ export const Organizations = () => {
   const navigate = useNavigate();
   const location = useLocation();
   // console.log(location.search);
-  // const queryParams = new URLSearchParams(location.search);
+  const queryParams = new URLSearchParams(location.search);
   // console.log(queryParams);
 
   const handleFormSubmit = (values) => {
@@ -76,21 +76,18 @@ export const Organizations = () => {
 
   const rowProps = (record) => {
     return {
-      onClick: () => navigate(`/app/projects/${record.name}`),
+      onClick: () => navigate(`/app/organizations/${record.name}`),
     };
   };
 
   return (
     <>
       <Routes>
-        <Route path="" element={<OrganizationsList />}></Route>
-        <Route path="create" element={<AddNewOrganization />}></Route>
-        <Route path="view" element={< LeadProfile/>}></Route>
-        {/* <Route
-          path=":projectId"
-          element={<Navigate to="modules" replace />}
-        ></Route>
-        <Route path="*" element={<Navigate to="" replace />}></Route> */}
+        <Route path="/" element={<OrganizationsList />} />
+        <Route path="create" element={<AddNewOrganization />} />
+        <Route path="view" element={<LeadProfile />} />
+        <Route path=":organizationId" element={<LeadProfile />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       <Outlet />

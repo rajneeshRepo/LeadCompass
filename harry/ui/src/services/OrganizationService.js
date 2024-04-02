@@ -13,6 +13,17 @@ OrganizationService.getOrganizations = function (data) {
  
 }
 
+OrganizationService.getOrganizationById = function (data) {
+    // console.log(data)
+
+   return fetch({
+        url: '/organization',
+        method: 'get',
+        // params: data
+    })
+ 
+}
+
 
 OrganizationService.searchOrganizations = function (data) {
 
