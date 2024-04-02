@@ -32,6 +32,12 @@ def get_org_collection():
     user_collection = db["organization"]
     return user_collection
 
+def get_people_collection():
+    client = MongoClient(mongo_url)
+    db = client["harry"]
+    user_collection = db["people"]
+    return user_collection
+
 @router.get("/resources_info", response_model_by_alias=False, response_description="Get all users")
 def get_users():
     try:
@@ -55,18 +61,25 @@ def get_user_org_info():
     try:
         user_collection = get_user_collection()
         org_collection = get_org_collection()
+        people_collection = get_people_collection()
         users = user_collection.find()
         user_org_info_list = []
         for user in users:
             user_orgs = list(org_collection.find({"user_id": ObjectId(user["_id"])}))
+            user_people = list(people_collection.find({"user_id": ObjectId(user["_id"])}))
             total_orgs = len(user_orgs) if user_orgs else 0
-            today_orgs = len([org for org in user_orgs if datetime.strptime(org["created_at"], "%Y-%m-%dT%H:%M:%S") >= datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)]) if user_orgs else 0
+            total_people = len(user_people) if user_people else 0
+            today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            today_orgs = len([org for org in user_orgs if org["created_at"] >= today]) if user_orgs else 0
+            today_people = len([person for person in user_people if person["created_at"] >= today]) if user_people else 0
             user_org_info = {
                 "full_name": f"{user['first_name']} {user['last_name']} ",
                 "email": user["email"],
                 "user_id": str(user["_id"]),
                 "total_orgs": total_orgs,
-                "today_orgs": today_orgs
+                "today_orgs": today_orgs,
+                "total_people": total_people,
+                "today_people": today_people
             }
             user_org_info_list.append(user_org_info)
         return user_org_info_list

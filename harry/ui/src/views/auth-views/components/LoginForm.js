@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import { connect } from 'react-redux';
 import { Button, Form, Input, Divider, Alert } from 'antd';
 import { MailOutlined, LockOutlined } from '@ant-design/icons';
@@ -18,9 +18,11 @@ import { motion } from "framer-motion"
 import './login.css';
 
 export const LoginForm = props => {
-	
+	const [rememberMe, setRememberMe] = useState(localStorage.getItem('rememberMe')=='true'?true:false);
+	const [email, setEmail] = useState(localStorage.getItem('email') ||null);
+	const [password, setPassword] = useState(localStorage.getItem('password') || null);
 	const navigate = useNavigate();
-
+	
 	const { 
 		otherSignIn, 
 		showForgetPassword, 
@@ -53,16 +55,33 @@ export const LoginForm = props => {
 	  };
 
 	const onLogin = values => {
+		if (rememberMe) {
+			localStorage.setItem('rememberMe', rememberMe);
+			localStorage.setItem('email', values.email);
+			localStorage.setItem('password', values.password);
+		}
+		else if (!rememberMe) {
+			localStorage.removeItem('rememberMe');
+			localStorage.removeItem('email');
+			localStorage.removeItem('password');
+		}
 		showLoading()
 		signIn(values);
 	};
 
+	const handleRememberMeChange = (event) => {
+		setRememberMe(event.target.checked);
+	  };
 
-
+	
 	useEffect(() => {
 		if (token !== null && allowRedirect) {
 			navigate(redirect)
 		}
+		if (rememberMe) {
+			setEmail(localStorage.getItem('email') ||null);
+			setPassword(localStorage.getItem('password') ||null);
+		  }
 		if (showMessage) {
 			const timer = setTimeout(() => hideAuthMessage(), 3000)
 			return () => {
@@ -85,6 +104,7 @@ export const LoginForm = props => {
 				layout="vertical" 
 				name="login-form" 
 				onFinish={onLogin}
+				initialValues={{ email: email, password: password }}
 			>
 
 				<Form.Item 
@@ -129,6 +149,12 @@ export const LoginForm = props => {
 					]}
 				>
 					<Input.Password prefix={<LockOutlined className="text-primary" />} style={{width:"496px", borderRadius:0}}/>
+				</Form.Item>
+				<Form.Item>
+					<label style={{ display: 'flex', alignItems: 'center' }}>
+						<input type="checkbox" checked={rememberMe} onChange={handleRememberMeChange} style={{ marginRight: '8px' }} />
+						<span>Remember Me</span>
+					</label>
 				</Form.Item>
 				<Form.Item>
 					<Button htmlType="submit" block loading={loading} style={{width:"496px", borderRadius:0, background:"#565E6D", color:"#FFFFFF"}}>

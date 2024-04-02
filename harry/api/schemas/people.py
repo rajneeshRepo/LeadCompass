@@ -16,8 +16,8 @@ class PeopleSchema(BaseModel):
     linkedin_id: Optional[str] = ""
     title: Optional[str] = ""
     created_at: datetime = None
-    organization_id: int
-    user_id: int
+    organization_id: PyObjectId
+    user_id: PyObjectId
 
     model_config = ConfigDict(
         populate_by_name=True,

@@ -195,15 +195,16 @@ const OrganizationsList = ({onSearch}) => {
     },
     {
       title: "Decision Makers",
-      key: "decision_makers",
+      key: "total_decision_makers",
       dataIndex: "decision_makers",
       width: "20%",
     },
     {
       title: "",
       key: "actions",
-      render: () => (
-        <Button type="link" icon={<EditOutlined />} onClick={handleEditClick}>
+      dataIndex:'organization_id',
+      render: (record) => (
+        <Button type="link" icon={<EditOutlined />} onClick={handleEditClick(record)}>
           Edit
         </Button>
       ),
@@ -212,7 +213,7 @@ const OrganizationsList = ({onSearch}) => {
 
   const handleEditClick = (record) => {
     return {
-      onClick: () => navigate(`/app/organizations/${record.name}`),
+      onClick: () => navigate(`/app/organizations/${record.organization_id}`),
     };
   };
 

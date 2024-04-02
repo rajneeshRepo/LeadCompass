@@ -16,6 +16,7 @@ class ContactSchema(BaseModel):
     contact_type: ContactEnum
     person_contact: Union[str, EmailStr]  # Represents either an email or a phone number
     is_primary: Optional[bool] = False
+    user_id: PyObjectId = None
     
 
     model_config = ConfigDict(
