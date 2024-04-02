@@ -1,6 +1,6 @@
 import {React,useEffect, useState} from 'react';
 import { Input, Form, Row, Col, Typography,Button,Spin} from 'antd';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation,useNavigate } from 'react-router-dom';
 import ApiService from 'services/ApiService';
 
 const layout = {
@@ -41,7 +41,7 @@ const AddNewResource = () => {
     const id = queryParams.get('id');
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-
+    const navigate = useNavigate();
     
     const emailExists = async(email) => { 
         let data =  await ApiService.harryBackendApi("auth/check_email","get",{"email":email},null)
@@ -123,13 +123,19 @@ const AddNewResource = () => {
             let data =  await ApiService.harryBackendApi("auth/register","post",null,values);
             if (data["message"] == "User added successfully"){
                 alert("Resource added successfully");
+                navigate(`/app/resource_info`);
             }
     
             // Here you can handle the form values, e.g., send them to an API
         } catch (errorInfo) {
+          alert("Resource failed to add");
             console.log('Failed:', errorInfo);
         }
     };
+
+    const handleCancel = () => {
+      navigate(`/app/resource_info`);
+    }
     
    const  handleUpdate = async () => {
         try {
@@ -138,10 +144,12 @@ const AddNewResource = () => {
             let data =  await ApiService.harryBackendApi(`auth/update-user/${id}`,"put",null,values);
             if (data["message"] == "User updated successfully"){
                 alert("Resource updated successfully");
+                navigate(`/app/resource_info`);
             }
     
             // Here you can handle the form values, e.g., send them to an API
         } catch (errorInfo) {
+          alert("Resource update failed");
             console.log('Failed:', errorInfo);
         }
     }
@@ -216,7 +224,7 @@ const AddNewResource = () => {
       <Row>
     <Col span={24} style={{ textAlign: 'right' }}>
         <Form.Item {...layout}>
-            <Button type="link" style={{...buttonStyle, backgroundColor:'#F3F4F6', color:'#565E6D', borderRadius:'0px', marginRight:'4px'}}>Cancel</Button>
+            <Button type="link" style={{...buttonStyle, backgroundColor:'#F3F4F6', color:'#565E6D', borderRadius:'0px', marginRight:'4px'}} onClick={handleCancel}>Cancel</Button>
             {type === 'edit' ? (
                 <Button style={{...buttonStyle, backgroundColor:'#565E6D',color:'#FFFFFF',borderRadius:'0px',marginLeft:'4px'}} onClick={handleUpdate}>Update</Button>
             ) : (

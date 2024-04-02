@@ -78,10 +78,10 @@ export const NavProfile = ({mode}) => {
 		<Dropdown placement="bottomRight" menu={{items}} trigger={["click"]}>
 			<NavItem mode={mode}>
 				<Profile>
-					<Avatar src="/img/avatars/thumb-1.jpg" />
+					<Avatar src="" />
 					<UserInfo className="profile-text">
-						<Name>Charlie Howard</Name>
-						<Title>Frontend Developer</Title>
+						<Name>{`${localStorage.getItem('first_name')} ${localStorage.getItem('last_name')}`}</Name>
+						<Title>{`${localStorage.getItem('role')}`}</Title>
 					</UserInfo>
 				</Profile>
 			</NavItem>
