@@ -34,8 +34,12 @@ const fetchOldData = async (id) => {
 
   const onFinish =async(values) => {
     values['user_email'] = localStorage.getItem("email");
+    if (values['decisionMakers']==undefined||values['decisionMakers']==null){ 
+      values['decisionMakers'] = [];
+    }
     let response =  await ApiService.harryBackendApi(`organization`,"post",null,values);
-    console.log(response,"add new organization");
+    alert("Organization added successfully");
+    navigate("/app/organizations");
   };
 
   return (
