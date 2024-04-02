@@ -21,7 +21,8 @@ import {
 import ContactForm from "./ContactForm";
 import { SPACER } from "constants/ThemeConstant";
 import EmptyData from "components/util-components/EmptyData";
-import OrganizationService from "services/OrganizationService"
+// import OrganizationService from "services/OrganizationService"
+import ContactService from "services/ContactService";
 
 const CardDropdown = ({ items }) => {
   return (
@@ -37,7 +38,8 @@ const CardDropdown = ({ items }) => {
   );
 };
 
-const LeadContacts = ({ lead }) => {
+const ContactDetails = ({ lead }) => {
+
   const [form] = Form.useForm();
   const [contacts, setContacts] = useState([{
   "name": "ujjwal",
@@ -48,30 +50,39 @@ const LeadContacts = ({ lead }) => {
 }]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-//   useEffect(() => {
-//     getLeadContacts();
-//   }, []);
+  useEffect(() => {
+    getContactDetails();
+  }, []);
 
-//   const getLeadContacts = async () => {
-//     try {
-//       const response = await OrganizationService.getOrganizations({});
-//       setContacts(response.contact);
-//     } catch (error) {
-//       message.error(`Couldn't get Organizations.`);
-//     }
-//   };
+  const getContactDetails = async (id) => {
+    console.log("debuggerkjn")
+    console.log(id) 
+    try {
+      const response = await ContactService.getContacts({id});
+      const formattedContacts = response.result.map((contact) => ({
+        name: contact.name,
+        title: contact.title,
+        email: contact.email,
+        linkedIn: contact.linkedIn,
+        primary_contact: contact.primary_contact,
+      }));
+      setContacts(formattedContacts);
+    } catch (error) {
+      message.error(`Couldn't get contacts.`);
+    }
+  };
 
-//   const deleteContact = async (id) => {
-//     try {
-//       const response = await ContactService.deleteContact({ id });
-//       message.success('Contact deleted successfully')
-//       getLeadContacts();
-//     } catch (error) {
-//       //   message.error(error.message);
-//     }
+  const deleteContact = async (id) => {
+    try {
+      const response = await ContactService.deleteContactById({ id });
+      message.success('Contact deleted successfully')
+      getContactDetails();
+    } catch (error) {
+        message.error(error.message);
+    }
 
-//     handleCancelModal();
-//   };
+    handleCancelModal();
+  };
 
   const handleContactSubmit = () => {
     console.log("debugger")
@@ -83,27 +94,27 @@ const LeadContacts = ({ lead }) => {
       const data = {...values, company_id: lead.id};
 
       if (form_type == "Add") {
-        // data.company_id = lead.id;
+        data.company_id = lead.id;
 
         try {
-        //   const response = await ContactService.addContact(data);
+          const response = await ContactService.createContact(data);
           message.success('Contact added successfully')
           handleCancelModal();
-        //   getLeadContacts();
+          getContactDetails();
         } catch (error) {
           message.error("Add Request Failed.");
         }
       } 
-    //   else {
-    //     try{
-    //       const response = await ContactService.updateContact(data);
-    //       message.success('Contact updated successfully')
-    //       handleCancelModal();
-    //       getLeadContacts();
-    //     }catch(error){
-    //       message.error('Update Request Failed.')
-    //     }
-    //   }
+      else {
+        try{
+          const response = await ContactService.updateContactById(data);
+          message.success('Contact updated successfully')
+          handleCancelModal();
+          getContactDetails();
+        }catch(error){
+          message.error('Update Request Failed.')
+        }
+      }
     });
   };
 
@@ -112,7 +123,7 @@ const LeadContacts = ({ lead }) => {
       title: "Confirm Delete Contact",
       icon: <ExclamationCircleFilled />,
       content: `Once a contact is deleted, it cannot be recovered`,
-    //   onOk: () => deleteContact(contact.id),
+      onOk: () => deleteContact(contact.id),
       onCancel: () => handleCancelModal(),
     });
   };
@@ -164,12 +175,7 @@ const LeadContacts = ({ lead }) => {
         children: contact.primary_contact,
         //   span: 1.5
       },
-    //   {
-    //     key: "6",
-    //     label: "Contact (Secondary)",
-    //     children: contact.secondary_contact,
-    //     //   span: 1.5,
-    //   },
+
       
     ];
   };
@@ -267,4 +273,4 @@ const LeadContacts = ({ lead }) => {
   );
 };
 
-export default LeadContacts;
+export default ContactDetails;
