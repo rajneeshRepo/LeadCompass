@@ -99,11 +99,11 @@ async def get_organization_by_id(
 
         if not existing_organization:
             raise HTTPException(status_code=404, detail="Organization not found")
-        filter_query = {"_id": ObjectId(id)}
+        # filter_query = {"_id": ObjectId(id)}
 
-        organization = list(collection_organization.find(filter_query).limit(page_size).skip((page - 1) * page_size))
+        # organization = collection_organization.find(filter_query).limit(page_size).skip((page - 1) * page_size)
 
-        return OrganizationResponse(result=organization, total=1, message="Organization retrieved successfully")
+        return OrganizationResponse(result=existing_organization, total=1, message="Organization retrieved successfully")
 
     except HTTPException as http_exception:
         traceback.print_exc()

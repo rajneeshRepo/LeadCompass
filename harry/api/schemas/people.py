@@ -13,11 +13,13 @@ PyObjectId = Annotated[str, BeforeValidator(str)]
 class PeopleSchema(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
-    linkedin_id: Optional[str] = ""
+    linkedin: Optional[str] = ""
     title: Optional[str] = ""
     created_at: datetime = None
     organization_id: PyObjectId
     user_id: PyObjectId
+    phone: Optional[str] = ""
+    email: Optional[EmailStr] = ""
 
     model_config = ConfigDict(
         populate_by_name=True,

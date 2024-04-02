@@ -6,7 +6,7 @@ const BasicDetails = ({lead}) => {
         {
           key: "1",
           label: "Name",
-          children: lead.organiation_name,
+          children: lead.name,
         },
         {
           key: "2",
@@ -27,7 +27,7 @@ const BasicDetails = ({lead}) => {
         {
           key: "5",
           label: "Office Phone",
-          children: lead.office_phone,
+          children: lead.official_phone,
         //   span: 1.5,
         },
         {
@@ -38,7 +38,7 @@ const BasicDetails = ({lead}) => {
         {
           key: "7",
           label: "City",
-          children: lead.city,
+          children: lead.county,
         },
         {
           key: "8",
@@ -49,5 +49,6 @@ const BasicDetails = ({lead}) => {
 
     return (<Descriptions size="small" bordered items={basic_items} />)
 }
+
 
 export default BasicDetails;

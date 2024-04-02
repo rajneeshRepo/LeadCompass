@@ -14,16 +14,7 @@ import ApiService from 'services/ApiService';
 export const LeadProfile = () => {
   const navigate = useNavigate();
   const { organizationId } = useParams();
-  const [organization, setOrganization] = useState({
-    "organiation_name": "shorthills",
-    "annual_revenue": "100M",
-    "growth_from_last_year": "20",
-    "team_size": "50",
-    "office_phone": "7678221835",
-    "website": "shorthills@ai",
-    "city": "gurgaon",
-    "state": "haryana"
-});
+  const [organization, setOrganization] = useState([]);
 
   useEffect(() => {
 
@@ -32,18 +23,22 @@ export const LeadProfile = () => {
 
   const getLead = async (id) => {
     try {
-      const response = await ApiService.harryBackendApi('organization','get',{id:id},null);
+      const response = await OrganizationService.getOrganizationById({id});
+      console.log("sgv")
+      console.log(response.result);
 
-      const formattedOrganization = response.result.map((organization) => ({
-        name: organization.name,
-        annual_revenue: organization.annual_revenue,
-        growth_from_last_year: organization.growth_from_last_year,
-        team_size: organization.team_size,
-        office_phone: organization.office_phone,
-        website: organization.website,
-        city: organization.city,
-        state: organization.state,
-      }));
+      // const formattedOrganization = response.result.map((organization) => ({
+      //   name: organization.name,
+      //   annual_revenue: organization.annual_revenue,
+      //   growth_from_last_year: organization.growth_from_last_year,
+      //   team_size: organization.team_size,
+      //   office_phone: organization.official_phone,
+      //   website: organization.website,
+      //   city: organization.county,
+      //   state: organization.state,
+      // }));
+      const formattedOrganization = response.result;
+      console.log(formattedOrganization,"formattedOrganization");
       setOrganization(formattedOrganization);
     } catch (error) {
       message.error(`Couldn't fetch organization`);
