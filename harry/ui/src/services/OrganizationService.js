@@ -19,7 +19,7 @@ OrganizationService.getOrganizationById = function (data) {
    return fetch({
         url: '/organization',
         method: 'get',
-        // params: data
+        params: data
     })
  
 }

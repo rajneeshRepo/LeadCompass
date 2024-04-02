@@ -43,13 +43,7 @@ const ContactDetails = ({ lead }) => {
 
   const [form] = Form.useForm();
   const { organizationId } = useParams();
-  const [contacts, setContacts] = useState([{
-  "name": "ujjwal",
-  "title": "sde1",
-  "email": "uk@gmail.com",
-  "linkedin": "linkedin.com",
-  "primary_contact": "7678221835"
-}]);
+  const [contacts, setContacts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -57,7 +51,7 @@ const ContactDetails = ({ lead }) => {
   }, []);
 
   const getContactDetails = async (id) => {
-    console.log("debuggerkjn")
+    // console.log("debuggerkjn")
     console.log(id) 
     try {
       const response = await ContactService.getContacts({id});
@@ -65,8 +59,8 @@ const ContactDetails = ({ lead }) => {
         name: contact.name,
         title: contact.title,
         email: contact.email,
-        linkedIn: contact.linkedIn,
-        primary_contact: contact.primary_contact,
+        linkedIn: contact.linkedin,
+        primary_contact: contact.phone,
       }));
       setContacts(formattedContacts);
     } catch (error) {
