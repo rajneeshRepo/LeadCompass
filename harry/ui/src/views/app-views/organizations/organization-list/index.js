@@ -26,6 +26,8 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import OrganizationService from "services/OrganizationService";
 import { SPACER } from "constants/ThemeConstant";
+import DataService from "services/DataService";
+import { set } from "lodash";
 
 // const TABLE_SIZE = 10
 
@@ -51,11 +53,13 @@ const OrganizationsList = ({onSearch}) => {
   const [contacts, setContacts] = useState([]);
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
-  const [minAnnualRevenue, setMinAnnualRevenue] = useState([10, 200]);
-  const [maxAnnualRevenue, setMaxAnnualRevenue] = useState([10, 200]);
+  const [minAnnualRevenue, setMinAnnualRevenue] = useState([0, 200]);
+  const [maxAnnualRevenue, setMaxAnnualRevenue] = useState([0, 200]);
   const [organizations, setOrganizations] = useState([]);
   const [searchOrganizationQuery, setSearchOrganizationQuery] = useState("");
   const [searchPersonQuery, setSearchPersonQuery] = useState("");
+  const [stateData, setStateData] = useState([]);
+  const [selectedState, setSelectedState] = useState('');
 
   const handleInputChange = (value) => {
     setSearchOrganizationQuery(value);
@@ -167,6 +171,23 @@ const OrganizationsList = ({onSearch}) => {
     }
   };
 
+  useEffect(() => {
+    state_counties_data();
+  }, []);
+
+  const state_counties_data = async () => {
+    try {
+      const response = await DataService.getStateCounty({});
+      setStateData(response.states);
+    } catch (error) {
+      message.error(`Couldn't get Organizations.`);
+    }
+  };
+
+  const handleStateChange = (value) => {
+    setSelectedState(value);
+  };
+
   const navigate = useNavigate();
   const location = useLocation();
   console.log(location.search);
@@ -196,7 +217,7 @@ const OrganizationsList = ({onSearch}) => {
     {
       title: "Decision Makers",
       key: "total_decision_makers",
-      dataIndex: "decision_makers",
+      dataIndex: "total_decision_makers",
       width: "20%",
     },
     {
@@ -237,6 +258,24 @@ const OrganizationsList = ({onSearch}) => {
   const handleCancelModal = () => {
     setIsModalOpen(false);
     form.resetFields();
+  };
+
+  const handleApply = async () => {
+    try {
+      // Call API to fetch data and set the result
+      const response = await DataService.getFilterOrganization({state: selectedState, annual_revenue_min:minAnnualRevenue , annual_revenue_max:maxAnnualRevenue, growth_scale:value}); 
+      const formattedContacts = response.result.map((contact) => ({
+        name: contact.name,
+        organization_id: contact.id,
+        annual_revenue: contact.annual_revenue,
+        decision_makers: contact.last_modified,
+      }));
+      setContacts(formattedContacts);
+    
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+    handleCancelModal();
   };
 
   // const FilterModal = ({ visible, onCancel, onApply }) => {
@@ -376,17 +415,20 @@ const OrganizationsList = ({onSearch}) => {
             // onOk={handleContactSubmit}
             onCancel={handleCancelModal}
             footer={[
-              <Button key="reset">Reset</Button>,
-              <Button key="apply" type="primary" onClick={console.log("a")}>
+              <Button key="reset" onClick={handleCancelModal}>Reset</Button>,
+              <Button key="apply" type="primary" onClick={handleApply}>
                 Apply
               </Button>,
             ]}
           >
+            {/* on reset or apply , call the function to filter the data */}
+            
+
             {/* <hr/> */}
             <br />
             <div>
               <p>State</p>
-              <Select
+              {/* <Select
                 style={{ width: "100%" }}
                 onChange={(value) => setState(value)}
               >
@@ -394,10 +436,21 @@ const OrganizationsList = ({onSearch}) => {
                 <Option value="Texas">Texas</Option>
                 <Option value="Florida">Florida</Option>
                 <Option value="New York">New York</Option>
+              </Select> */}
+              <Select
+                style={{ width: '100%' }}
+                onChange={handleStateChange}
+                value={selectedState}
+              >
+                {stateData.map((state) => (
+                  <Option key={state} value={state}>
+                    {state}
+                  </Option>
+                ))}
               </Select>
             </div>
             <div>
-              <p>City</p>
+              <p>County</p>
               <Select
                 style={{ width: "100%" }}
                 onChange={(value) => setCity(value)}

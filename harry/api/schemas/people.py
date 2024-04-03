@@ -30,8 +30,8 @@ class PeopleSchema(BaseModel):
 class PeopleUpdateSchema(BaseModel):
     id: PyObjectId = Field(alias="_id")
     name: Optional[str] = None
-    linkedin_id: Optional[str] = None
-    title : Optional[int] = None
+    linkedin: Optional[str] = None
+    title : Optional[str] = None
 
     model_config = ConfigDict(
         populate_by_name=True,
