@@ -78,7 +78,6 @@ const AddNewResource = () => {
             },
             ({ getFieldValue }) => ({
                 validator: async (_, value) => {
-                    console.log("rajneesh")
                     // Replace this with the actual function to check if the email exists
                     if (await emailExists(value)) {
                         return Promise.reject('Email already exists!');
@@ -156,7 +155,6 @@ const AddNewResource = () => {
     const fetchOldData = async (id) => {
         setLoading(true);
         let data =  await ApiService.harryBackendApi(`auth/user/${id}`,"get",null,null);
-        console.log(data["result"]);
         form.setFieldsValue({
             first_name: data["result"]["first_name"],
             last_name: data["result"]["last_name"],

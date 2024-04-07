@@ -8,7 +8,7 @@ ContactService.createContact = function (data) {
    return fetch({
         url: '/contact',
         method: 'post',
-        params: data
+        data: data
     })
  
 }
@@ -30,7 +30,7 @@ ContactService.getContacts = function (data) {
     // console.log(data)
 
    return fetch({
-        url: '/contact/all',
+        url: '/people/all',
         method: 'get',
         params: data
     })
@@ -42,7 +42,7 @@ ContactService.updateContactById = function (data) {
    return fetch({
         url: '/contact',
         method: 'put',
-        params: data
+        data: data
     })
  
 }

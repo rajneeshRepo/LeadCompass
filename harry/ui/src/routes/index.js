@@ -5,14 +5,16 @@ import { protectedRoutes, publicRoutes } from 'configs/RoutesConfig';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import AppRoute from './AppRoute';
+import { useSelector } from 'react-redux';
 
 const Routes = () => {
-
+	const { user } = useSelector((state) =>state.auth);
 	return (
 		<RouterRoutes>
 			<Route path="/" element={<ProtectedRoute />}>
 				<Route path="/" element={<Navigate replace to={AUTHENTICATED_ENTRY} />} />
 				{protectedRoutes.map((route, index) => {
+					if ( user != null && route.roles.includes(user.role)) {
 					return (
 						<Route 
 							key={route.key + index} 
@@ -25,8 +27,9 @@ const Routes = () => {
 								/>
 							}
 						/>
-					)
-				})}
+					)}
+					else return null;
+					})}
 				<Route path="*" element={<Navigate to="/" replace />} />
 			</Route>
 			<Route path="/" element={<PublicRoute />}>

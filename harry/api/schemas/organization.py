@@ -10,27 +10,25 @@ from pydantic.functional_validators import BeforeValidator
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
-
-class Contact(BaseModel):
-    value: str
-    type: str
 class DecisionMaker(BaseModel):
     name: str
     title: str
     linkedin: str
-    contact: Optional[List[Contact]]
-    emails: Optional[List[Contact]]
+    primary_email: Optional[str]
+    secondary_email: Optional[str] = None
+    primary_contact: Optional[str]
+    secondary_contact: Optional[str] = None
 
 class OrganizationSchema(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str = ""
     address: Optional[str] = None
     annual_revenue : Optional[str] = None
-    growth_from_last_year : Optional[str] = ""
-    team_size : Optional[int] = ""
+    growth_from_last_year : Optional[int] = ""
+    team_size : Optional[str] = ""
     official_phone: Optional[str] = ""
     website : Optional[str] = ""
-    county : Optional[str] = ""
+    city : Optional[str] = ""
     state : Optional[str] = ""
     last_modified: datetime = None
     created_at: datetime = None
@@ -48,8 +46,8 @@ class OrganizationUpdateSchema(BaseModel):
     name: Optional[str] = None
     address: Optional[str] = None
     annual_revenue : Optional[str] = None
-    growth_from_last_year : Optional[str] = None
-    team_size : Optional[int] = None
+    growth_from_last_year : Optional[int] = None
+    team_size : Optional[str] = None
     official_phone: Optional[str] = None
     website : Optional[str] = None
     city : Optional[str] = None
@@ -72,17 +70,17 @@ class AddOrganizationSchema(BaseModel):
     name: str = ""
     address: Optional[str] = None
     annual_revenue : Optional[str] = None
-    growth_from_last_year : Optional[str] = ""
-    team_size : Optional[int] = ""
+    growth_from_last_year : Optional[int] = ""
+    team_size : Optional[str] = ""
     official_phone: Optional[str] = ""
     website : Optional[str] = ""
-    county : Optional[str] = ""
+    city : Optional[str] = ""
     state : Optional[str] = ""
     last_modified: datetime = None
     created_at: datetime = None
     user_id: PyObjectId = None
     user_email: Optional[str]
-    decisionMakers: Optional[List[DecisionMaker]]
+    decisionMakers: Optional[List[DecisionMaker]] = None
 
 
     model_config = ConfigDict(

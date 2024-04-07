@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from "react";
-import { Card, Form, Input, Button, Row, Col, message,Space } from "antd";
+import { Card, Form, Input, Button, Row, Col, message,Space,Select } from "antd";
 import { useNavigate,useParams, useLocation } from "react-router-dom";
 // import { useQueryClient } from "react-query";
 import { GlobalOutlined , PhoneOutlined , TeamOutlined, UserAddOutlined,MinusCircleOutlined,PlusOutlined } from "@ant-design/icons";
@@ -8,6 +8,9 @@ import { GlobalOutlined , PhoneOutlined , TeamOutlined, UserAddOutlined,MinusCir
 // import { useUser } from "context/user-context";
 import ApiService from 'services/ApiService';
 import "./style.css";
+import usa_state from "../../../../assets/data/usa_state.json";
+const Option = {Select};
+const states = Object.keys(usa_state);
 
 export const AddNewOrganization = () => {
   const { type } = useParams();
@@ -16,7 +19,41 @@ export const AddNewOrganization = () => {
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get('id');
   const [form] = Form.useForm();
+  const [cities, setCities] = useState([]);
+  const revenueRanges = [
+    { value: '0-1M', label: '$0 - $1M' },
+    { value: '1M-5M', label: '$1M - $5M' },
+    { value: '5M-10M', label: '$5M - $10M' },
+    { value: '10M-50M', label: '$10M - $50M' },
+    { value: '50M-100M', label: '$50M- $100M' },
+    { value: '100M+', label: '$100M+' },
+  ];
 
+  const teamSizeRanges = [
+    { value: '0-10', label: '0 - 10' },
+    { value: '11-50', label: '11 - 50' },
+    { value: '51-100', label: '51 - 100' },
+    // Add more ranges as needed
+  ];
+  
+  <Form.Item
+    name="annual_revenue"
+    label="Annual Revenue"
+    rules={[
+      {
+        required: true,
+        message: "Please select annual revenue",
+      },
+    ]}
+  >
+    <Select placeholder="Please select annual revenue">
+      {revenueRanges.map(range => (
+        <Select.Option key={range.value} value={range.value}>
+          {range.label}
+        </Select.Option>
+      ))}
+    </Select>
+  </Form.Item>
 
   useEffect(() => {
     if (type === 'create') {
@@ -31,6 +68,12 @@ const fetchOldData = async (id) => {
 
 }
 
+const handleStateSelect = (selectedState) => {
+      // Update the cities array based on the selected state
+      // This is just a placeholder. Replace it with your actual logic.
+      let selectedStateCities = usa_state[selectedState];
+      setCities(selectedStateCities);
+    };
 
   const onFinish =async(values) => {
     values['user_email'] = localStorage.getItem("email");
@@ -64,55 +107,69 @@ const fetchOldData = async (id) => {
           </Row>
           <Row gutter={16}>
           <Col span={12}>
-            <Form.Item
-              name="annual_revenue"
-              label="Annual Revenue"
-              rules={[
-                {
-                  // required: true,
-                  message: "Please enter annual revenue",
-                },
-              ]}
-            >
-              <Input placeholder="Please enter annual revenue" />
-            </Form.Item>
+          <Form.Item
+  name="annual_revenue"
+  label="Annual Revenue"
+  rules={[
+    {
+      required: true,
+      message: "Please select annual revenue",
+    },
+  ]}
+>
+  <Select placeholder="Please select annual revenue" showSearch>
+    {revenueRanges.map(range => (
+      <Select.Option key={range.value} value={range.value}>
+        {range.label}
+      </Select.Option>
+    ))}
+  </Select>
+</Form.Item>
           </Col>
         </Row>
       
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item
-              name="growth_from_last_year" // Add this field
-              label="Growth from last year"
-              rules={[
-                {
-                  // required: true,
-                  message: "Please enter growth from last year",
-                },
-              ]}
-            >
-              <Input placeholder="Please enter growth from last year" />
-            </Form.Item>
+          <Form.Item
+          name="growth_from_last_year"
+          label="Growth from last year"
+          rules={[
+            {
+              required: true,
+              message: "Please select growth from last year",
+            },
+            ]}
+>
+  <Select placeholder="Please select growth from last year" showSearch>
+    {Array.from({length: 111}, (_, i) => i - 10).map(value => (
+      <Select.Option key={value} value={value} showSearch>
+        {value}%
+      </Select.Option>
+    ))}
+  </Select>
+</Form.Item>
           </Col>
           </Row>
           <Row gutter={16}>
           <Col span={12}>
-            <Form.Item
-              name="team_size" // Add this field
-              label={(
-                <span>
-                  Team Size <TeamOutlined />
-                </span>
-              )}
-              rules={[
-                {
-                  // required: true,
-                  message: "Please enter team size",
-                },
-              ]}
-            >
-              <Input placeholder="Please enter team size" />
-            </Form.Item>
+          <Form.Item
+          name="team_size"
+          label="Team Size"
+          rules={[
+            {
+              required: true,
+              message: "Please select team size",
+            },
+          ]}
+          >
+  <Select placeholder="Please select team size">
+    {teamSizeRanges.map(range => (
+      <Select.Option key={range.value} value={range.value}>
+        {range.label}
+      </Select.Option>
+    ))}
+  </Select>
+</Form.Item>
           </Col>
         </Row>
         <Row gutter={16}>
@@ -160,34 +217,45 @@ const fetchOldData = async (id) => {
         </Row>
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item
-              name="county" // Add this field
-              label="County"
-              rules={[
-                {
-                  // required: true,
-                  message: "Please enter county",
-                },
-              ]}
-            >
-              <Input placeholder="Please enter county" />
-            </Form.Item>
+         <Form.Item
+ name="state"
+ label="State"
+  rules={[
+   {
+      required: true,
+      message: "Please select a state",
+   },
+  ]}
+>
+  <Select onSelect={handleStateSelect} showSearch>
+   {states.map((state) => (
+      <Select.Option key={state} value={state}>
+        {state}
+      </Select.Option>
+    ))}
+  </Select>
+</Form.Item>
           </Col>
         
        
           <Col span={12}>
-            <Form.Item
-              name="state" // Add this field
-              label="State"
-              rules={[
-                {
-                  // required: true,
-                  message: "Please enter state",
-                },
-              ]}
-            >
-              <Input placeholder="Please enter state" />
-            </Form.Item>
+             <Form.Item
+             name="city"
+             label="City"
+             rules={[
+  {
+     required: true,
+     message: "Please select a county",
+   },
+ ]}>
+ <Select showSearch>
+   {cities.map((city) => (
+      <Select.Option key={city} value={city}>
+       {city}
+    </Select.Option>
+    ))}
+  </Select>
+  </Form.Item>
           </Col>
         </Row>
 
@@ -221,7 +289,7 @@ const fetchOldData = async (id) => {
                     extra={<Button icon={<MinusCircleOutlined />} onClick={() => remove(index)} />}
                   >
             <Row gutter={16}>
-              <Col span={16}>
+              <Col span={12}>
               <Form.Item
                   {...field}
                   name={[field.name, 'id']}
@@ -242,106 +310,105 @@ const fetchOldData = async (id) => {
                 >
                   <Input placeholder="Please enter decision maker name" />
                 </Form.Item>
+              </Col>
+              <Col span={12}>
                 <Form.Item
                   {...field}
                   name={[field.name, 'title']}
                   label="Title"
                   rules={[
                     {
-                      required: false,
+                      required: true,
                       message: "Please enter title",
                     },
                   ]}
                 >
                   <Input placeholder="Please enter title" />
                 </Form.Item>
-                <Form.List name={[field.name, 'emails']}>
-  {(emailFields, { add: addEmail, remove: removeEmail }) => (
-    <>
-      {emailFields.map((emailField, emailIndex) => (
-        <Space key={emailField.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-          <Form.Item
-            {...emailField}
-            name={[emailField.name, 'value']}
-            label={`Email ${emailIndex + 1}`}
-            rules={[
-              {
-                required: true,
-                message: "Please enter email",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            {...emailField}
-            name={[emailField.name, 'type']}
-            initialValue="email"
-            hidden
-          >
-            <Input />
-          </Form.Item>
-          <MinusCircleOutlined onClick={() => removeEmail(emailIndex)} />
-        </Space>
-      ))}
-      <Form.Item>
-        <Button type="dashed" onClick={() => addEmail()} block icon={<PlusOutlined />}>
-          Add Email
-          </Button>
-      </Form.Item>
-    </>
-  )}
-</Form.List>
+                </Col>
+              <Col span={12}>
+                <Form.Item
+                {...field}
+                name={[field.name, 'primary_email']}
+                label="Primary Email"
+                rules={[
+                  {
+                    type: 'email',
+                    message: 'The input is not valid E-mail!',
+                  },
+                  {
+                    required: true,
+                    message: 'Please enter your E-mail!',
+                  },
+                  ]}
+>
+  <Input placeholder="Please enter primary email" />
+  </Form.Item>
+  </Col>
+        <Col span={12}>
+            <Form.Item
+            {...field}
+            name={[field.name, 'secondary_email']}
+            label="Secondary Email"
+              rules={[
+                {
+                  type: 'email',
+                  message: 'The input is not valid E-mail!',
+                },
+                {
+                  required: false,
+                  message: 'Please enter your E-mail!',
+                },
+              ]}
+            >
+              <Input placeholder="Please enter secondary email" />
+            </Form.Item>
+          </Col>
+<Col span={12}>
+                <Form.Item
+                {...field}
+                name={[field.name, 'primary_contact']}
+                label="Primary Contact"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter primary contact",
+                    },
+                  ]}
+                  >
+      <Input placeholder="Please enter primary contact" />
+    </Form.Item>
+    </Col>
+              <Col span={12}>
+    <Form.Item
+      {...field}
+      name={[field.name, 'secondary_contact']}
+      label="Secondary Contact"
+      rules={[
+        {
+          required: false,
+          message: "Please enter secondary contact",
+        },
+      ]}
+    >
+      <Input placeholder="Please enter secondary contact" />
+    </Form.Item>
+              </Col>
+              <Col span={12}>
                 <Form.Item
                   {...field}
                   name={[field.name, 'linkedin']}
                   label="LinkedIn"
                   rules={[
                     {
-                      required: false,
+                      required: true,
                       message: "Please enter LinkedIn",
                     },
                   ]}
                 >
                   <Input placeholder="Please enter LinkedIn" />
                 </Form.Item>
-                <Form.List name={[field.name, 'contact']}>
-  {(phoneFields, { add: addPhone, remove: removePhone }) => (
-    <>
-      {phoneFields.map((phoneField, phoneIndex) => (
-        <Space key={phoneField.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-          <Form.Item
-            {...phoneField}
-            name={[phoneField.name, 'value']}
-            label={`Phone ${phoneIndex + 1}`}
-            rules={[
-              {
-                required: true,
-                message: "Please enter email",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            {...phoneField}
-            name={[phoneField.name, 'type']}
-            initialValue="phone"
-            hidden
-          >
-            <Input />
-          </Form.Item>
-          <MinusCircleOutlined onClick={() => removePhone(phoneIndex)} />
-        </Space>
-      ))}
-      <Form.Item>
-        <Button type="dashed" onClick={() => addPhone()} block icon={<PlusOutlined />}>
-          </Button>
-      </Form.Item>
-    </>
-  )}
-</Form.List>
-              </Col>
+                </Col>
             </Row>
             </Card>
           </div>

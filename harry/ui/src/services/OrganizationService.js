@@ -2,13 +2,13 @@ import fetch from 'auth/FetchInterceptor'
 
 const OrganizationService = {}
 
-OrganizationService.getOrganizations = function (data) {
+OrganizationService.getOrganizations = function (param,data) {
     // console.log(data)
 
    return fetch({
         url: '/organization/all',
         method: 'get',
-        // params: data
+        params: data
     })
  
 }

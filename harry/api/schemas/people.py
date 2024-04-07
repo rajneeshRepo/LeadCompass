@@ -9,6 +9,9 @@ from pydantic.functional_validators import BeforeValidator
 # It will be represented as a `str` on the model so that it can be serialized to JSON.
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
+class ContactSchema(BaseModel):
+    value:str = None
+    type: str = None
 
 class PeopleSchema(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
@@ -18,8 +21,28 @@ class PeopleSchema(BaseModel):
     created_at: datetime = None
     organization_id: PyObjectId
     user_id: PyObjectId
-    phone: Optional[str] = ""
-    email: Optional[EmailStr] = ""
+    primary_email: str
+    secondary_email: Optional[str] = None
+    primary_contact: str
+    secondary_contact: Optional[str] = None
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+    )
+
+class AddPeopleSchema(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    name: str
+    linkedin: Optional[str] = ""
+    title: Optional[str] = ""
+    created_at: datetime = None
+    organization_id: PyObjectId
+    user_email: PyObjectId
+    primary_email: str
+    secondary_email: Optional[str]
+    primary_contact: str
+    secondary_contact: Optional[str]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -32,6 +55,10 @@ class PeopleUpdateSchema(BaseModel):
     name: Optional[str] = None
     linkedin: Optional[str] = None
     title : Optional[str] = None
+    primary_email: str
+    secondary_email: Optional[str]
+    primary_contact: str
+    secondary_contact: Optional[str]
 
     model_config = ConfigDict(
         populate_by_name=True,

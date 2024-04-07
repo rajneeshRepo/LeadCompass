@@ -38,7 +38,7 @@ const BasicDetails = ({lead}) => {
         {
           key: "7",
           label: "City",
-          children: lead.county,
+          children: lead.city,
         },
         {
           key: "8",

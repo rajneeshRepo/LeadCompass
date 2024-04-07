@@ -40,6 +40,12 @@ const rules = {
       validator: validateName,
     },
   ],
+  title:[
+    {
+      required: true,
+      message: "Please enter title",
+    }
+  ],
 //   last_name: [],
   email: [
     {
@@ -52,7 +58,7 @@ const rules = {
   ],
   linkedin: [
     {
-      required: false,
+      required: true,
       message: "Please enter linkedIn",
     },
     {
@@ -83,7 +89,7 @@ const ContactForm = ({ onSubmit }) => {
   return (
     <>
       <Row gutter={16}>
-        <Col xs={12} xl={12} xxl={8}>
+        <Col xs={12} xl={12} xxl={12}>
           <Form.Item
             rules={rules.name}
             label="Name"
@@ -92,34 +98,85 @@ const ContactForm = ({ onSubmit }) => {
             <Input />
           </Form.Item>
         </Col>
-        <Col xs={12} xl={12} xxl={8}>
-          <Form.Item label="Title" name={"title"}>
+        <Col xs={12} xl={12} xxl={12}>
+          <Form.Item label="Title" name={"title"} rules={rules.title}>
             <Input />
           </Form.Item>
         </Col>
+        <Col xs={12} xl={12} xxl={12}>
+
+            <Form.Item name="primary_email"
+  label="Primary Email"
+  rules={[
+    {
+      type: 'email',
+      message: 'The input is not valid E-mail!',
+    },
+    {
+      required: true,
+      message: 'Please enter your E-mail!',
+    },
+  ]}
+>
+  <Input placeholder="Please enter primary email" />
+</Form.Item>
+</Col>
+<Col xs={12} xl={12} xxl={12}>
+<Form.Item
+  name="secondary_email"
+  label="Secondary Email"
+  rules={[
+    {
+      type: 'email',
+      message: 'The input is not valid E-mail!',
+    },
+    {
+      required: false,
+      message: 'Please enter your E-mail!',
+    },
+  ]}
+>
+  <Input placeholder="Please enter secondary email" />
+</Form.Item>
+</Col>
+
         <Col xs={12} xl={12} xxl={8}>
-          <Form.Item rules={rules.email} label="Email" name={"email"}>
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col xs={12} xl={12} xxl={8}>
+            <Form.Item name="primary_contact"
+      label="Primary Contact"
+      rules={[
+        {
+          required: true,
+          message: "Please enter primary contact",
+        },
+      ]}
+    >
+      <Input placeholder="Please enter primary contact" />
+    </Form.Item>
+            </Col>
+            <Col xs={12} xl={12} xxl={8}>
+            <Form.Item
+      name="secondary_contact"
+      label="Secondary Contact"
+      rules={[
+        {
+          required: false,
+          message: "Please enter secondary contact",
+        },
+      ]}
+    >
+      <Input placeholder="Please enter secondary contact" />
+    </Form.Item>
+  </Col>
+
+  <Col xs={12} xl={12} xxl={8}>
           <Form.Item
             rules={rules.linkedin}
             label="LinkedIn Id"
-            name={"linkedIn"}
+            name={"linkedin"}
           >
             <Input />
           </Form.Item>
-        </Col>
-        <Col xs={12} xl={12} xxl={8}>
-          <Form.Item
-            rules={rules.contact_primary}
-            label="Contact"
-            name={"primary_contact"}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
+  </Col>
       {/* </Row> */}
       {/* <Row gutter={16}> */}
         
@@ -142,7 +199,7 @@ const ContactForm = ({ onSubmit }) => {
       </Form.Item> */}
 
       {/* Just For holding contact id and form_type */}
-      <Form.Item hidden name={"id"}>
+      <Form.Item hidden name={"_id"}>
         <Input />
       </Form.Item>
       <Form.Item hidden name={"form_type"}>

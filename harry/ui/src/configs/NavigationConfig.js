@@ -1,6 +1,11 @@
 import { DashboardOutlined , ProjectOutlined,FileOutlined} from '@ant-design/icons';
 import { APP_PREFIX_PATH } from 'configs/AppConfig'
-
+const user = {
+  firstName: localStorage.getItem('first_name') || null,
+  lastName: localStorage.getItem('last_name') || null,
+  email: localStorage.getItem('email') || null,
+  role: localStorage.getItem('role') || null
+}
 
 const dashBoardNavTree = [{
   key: 'dashboards',
@@ -57,7 +62,7 @@ const admin =[
 
 const navigationConfig = [
   ...dashBoardNavTree,
-  ...admin
+  ...(user.role === 'admin' ? admin : [])
   // ...organizationNavTree
 ]
 

@@ -56,11 +56,14 @@ const ContactDetails = ({ lead }) => {
     try {
       const response = await ContactService.getContacts({id});
       const formattedContacts = response.result.map((contact) => ({
+        _id: contact.id,
         name: contact.name,
         title: contact.title,
-        email: contact.email,
-        linkedIn: contact.linkedin,
-        primary_contact: contact.phone,
+        primary_email: contact.primary_email,
+        secondary_email: contact.secondary_email,
+        linkedin: contact.linkedin,
+        primary_contact: contact.primary_contact,
+        secondary_contact: contact.secondary_contact
       }));
       setContacts(formattedContacts);
     } catch (error) {
@@ -72,7 +75,7 @@ const ContactDetails = ({ lead }) => {
     try {
       const response = await ContactService.deleteContactById({ id });
       message.success('Contact deleted successfully')
-      getContactDetails();
+      // getContactDetails(organizationId);
     } catch (error) {
         message.error(error.message);
     }
@@ -81,7 +84,6 @@ const ContactDetails = ({ lead }) => {
   };
 
   const handleContactSubmit = () => {
-    console.log("debugger")
     console.log(form.getFieldsValue());
     form.validateFields().then(async (values) => {
       const form_type = values.form_type;
@@ -93,10 +95,12 @@ const ContactDetails = ({ lead }) => {
         data.company_id = lead.id;
 
         try {
+          data['user_email'] = localStorage.getItem("email");
+          data["organization_id"] = organizationId;
           const response = await ContactService.createContact(data);
           message.success('Contact added successfully')
           handleCancelModal();
-          getContactDetails();
+          getContactDetails(organizationId);
         } catch (error) {
           message.error("Add Request Failed.");
         }
@@ -106,7 +110,7 @@ const ContactDetails = ({ lead }) => {
           const response = await ContactService.updateContactById(data);
           message.success('Contact updated successfully')
           handleCancelModal();
-          getContactDetails();
+          getContactDetails(organizationId);
         }catch(error){
           message.error('Update Request Failed.')
         }
@@ -154,25 +158,35 @@ const ContactDetails = ({ lead }) => {
       },
       {
         key: "3",
-        label: "Email ID",
-        children: <span className="text-capitalize">{contact.email}</span>,
+        label: "Email ID (Primary)",
+        children: <span className="text-capitalize">{contact.primary_email}</span>,
         // span: 1.5
       },
       {
         key: "4",
-        label: "Linkedin ID",
-        children: <a href={contact.linkedIn}>{contact.linkedIn}</a>,
+        label: "Email ID (Secondary)",
+        children: <span className="text-capitalize">{contact.secondary_email}</span>,
+        // span: 1.5
+      },
+      {
+        key: "5",
+        label: "LinkedIn ID",
+        children: <a href={contact.linkedin}>{contact.linkedin}</a>,
         //   span: 1.5,
       },
 
       {
-        key: "5",
+        key: "6",
         label: "Contact (Primary)",
         children: contact.primary_contact,
         //   span: 1.5
       },
-
-      
+      {
+        key: "7",
+        label: "Contact (Secondary)",
+        children: contact.secondary_contact,
+        //   span: 1.5
+      }
     ];
   };
 
